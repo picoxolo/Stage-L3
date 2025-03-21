@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.fft import fft2, ifft2
 import matplotlib.pyplot as plt
 
 def whitenoise(N,M,sigma):
@@ -48,3 +49,46 @@ def matriceautocorrelation(I):
     return(A)
 
 #printimage(matriceautocorrelation(convolution(k,whitenoise(64,64,1))),"autocorrelationwhitenoise")
+
+#%%
+k_dict ={(0,0):1, (1,0):1}
+
+def convol_dict(k,W):
+    N,M = np.shape(W)
+    U = np.zeros((N,M))
+    for i in range(N):
+        for j in range(M):
+            for (m,n) in k.keys():
+                U[i][j] += k[(m,n)]*W[i-m][j-n]
+    return U
+
+k_arr = np.array([[1,1], [1,1]])
+
+def convol_arr(k,W):
+    N,M = np.shape(W)
+    V,X = np.shape(k)
+    U = np.zeros((N,M))
+    for i in range(N):
+        for j in range(M):
+            for m in range(V):
+                for n in range(X):
+                    U[i][j] += k[m,n]*W[i-m][j-n]
+    return U
+
+def auto_cor(I): #U est réelle
+    N,M = I.shape
+    A = np.zeros((N,M))
+    for i in range(N):
+        for j in range(M):
+            for m in range(N):
+                for n in range(M):
+                    A[i][j] += I[(i+m)%N][(j+n)%M]*I[m][n]
+    return A
+
+def autocor(I):
+    return np.real(ifft2(np.abs(fft2(I)**2)))
+
+ def k0(C):
+    return np.real(ifft2(np.sqrt(np.abs(fft2(C)))))
+
+#printimage(autocor(convol_dict(k_dict,whitenoise(64,64,1))),"autocorrelationwhitenoise")

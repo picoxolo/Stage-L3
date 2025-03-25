@@ -88,7 +88,21 @@ def auto_cor(I): #U est réelle
 def autocor(I):
     return np.real(ifft2(np.abs(fft2(I)**2)))
 
- def k0(C):
+def k0(C):
     return np.real(ifft2(np.sqrt(np.abs(fft2(C)))))
 
 #printimage(autocor(convol_dict(k_dict,whitenoise(64,64,1))),"autocorrelationwhitenoise")
+
+def retrouver_k (u):  #u est une liste avec n réalisations de U
+    n = len(u)
+    N,M = u[0].shape
+    gamma = np.zeros((N,M))
+    for i in range(n):
+        gamma += autocor(u[i])
+    gamma = (1/(n*(N**2))) * gamma
+    k = np.real(ifft2(np.sqrt(np.abs(fft2(gamma)))))
+    return(k)
+
+#printimage(retrouver_k([whitenoise(64,64,1) for i in range (5)]),"test_whitenoise")  #test pour k=1
+w = [whitenoise(64,64,1) for i in range (10)]
+#printimage(retrouver_k([convol_arr(k_arr,w[i]) for i in range(len(w))]),"test")   # on ne retrouve pas tout à fait k

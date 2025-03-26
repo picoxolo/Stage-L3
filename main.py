@@ -164,3 +164,91 @@ u = convol_arr(k_cer, wh)
 printimage(u, 'convol_test')
 
 #affiche(u)
+
+import numpy as np
+from numpy.fft import fft2, ifft2, fftshift, ifftshift
+import matplotlib.pyplot as plt
+
+def whitenoise(N,M,sigma):
+    noise = np.random.normal(0,sigma,(N,M))
+    return(noise)
+
+def printimage(img, title):
+    plt.title(title)
+    plt.imshow(img, cmap="gray")
+    plt.show()
+    
+def autocor(I):
+    return np.real(ifft2(np.abs(fft2(I))**2))
+
+def k0(C):
+    return np.real(ifft2(np.sqrt(np.abs(fft2(C)))))
+
+def convol(f,g):
+    return np.real(ifft2(fft2(f)*fft2(g)))
+
+def retrouver(u):  #u est une liste avec n réalisations de U
+    N,M = u.shape
+    gamma = autocor(u)/(N*M)
+    fft = np.sqrt(np.abs(fft2(gamma)))
+    k0 = np.real(ifft2(fft))
+    return k0, np.abs(fftshift(fft)), gamma, u
+
+def affiche(u):
+    plt.subplot(2,2,1)
+    k0, fft, gamma, u = retrouver(u)
+    plt.title('k0')
+    plt.imshow(k0, cmap = 'gray')
+    plt.subplot(2,2,2)
+    plt.title('fft')
+    plt.imshow(fft, cmap = 'gray')
+    plt.subplot(2,2,3)
+    plt.title('gamma')
+    plt.imshow(gamma, cmap = 'gray')
+    plt.subplot(2,2,4)
+    plt.title('u')
+    plt.imshow(u, cmap = 'gray')
+
+      
+k = np.zeros((512,512))
+k[0,1], k[0,0], k[1,0], k[1,1] = 1,1,1,1        
+
+k1 = np.real(ifft2(np.abs(fft2(k))))
+fft_k1 = np.abs(fft2(k))
+printimage(np.abs(fftshift(fft_k1)), 'fftk1')
+
+
+w = whitenoise(512,512,1)
+u = convol(k,w)
+
+k0, fft, gamma, u = retrouver(u)
+printimage(fft, 'abs_fftshift_k0')  
+
+#k_arr = np.array([[1,1], [1,1]])
+
+# def convol_arr(k,W):
+#     N,M = np.shape(W)
+#     V,X = np.shape(k)
+#     U = np.zeros((N,M))
+#     for i in range(N):
+#         for j in range(M):
+#             for m in range(V):
+#                 for n in range(X):
+#                     U[i][j] += k[m,n]*W[i-m][j-n]  
+#     return U
+                    
+# u_arr = convol_arr(k_arr, w)
+# k0a, ffta, gammaa, ua = retrouver(u_arr)
+# printimage(ffta, 'abs_fftshift_k0a')
+        
+# k_cer = np.zeros((64,64))
+# for i in range(64):
+#     for j in range(64):
+#         if (i-64)**2 + (j-64)**2 <= 64:
+#             k_cer[i,j] 
+
+
+
+#printimage(k_cer, 'cercle')
+
+#affiche(u)

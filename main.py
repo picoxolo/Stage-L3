@@ -105,14 +105,14 @@ for i in range(64):
             k_cer[i,j] = 1
 #printimage(k_cer, 'cercle')
 
-k = np.zeros((512,512))
+k = np.zeros((2048,2048))
 k[0,1], k[0,0], k[1,0], k[1,1] = 1,1,1,1        
 
 k1 = np.real(ifft2(np.abs(fft2(k))))
 fft_k1 = np.abs(fft2(k))
 printimage(np.abs(fftshift(fft_k1)), 'fftk1')
         
-wh = whitenoise(512,512,1)        
+wh = whitenoise(2048,2048,1)        
 u_con = convol(k,wh)
 
 k0, fft, gamma, u = retrouver(u_con)

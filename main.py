@@ -106,3 +106,61 @@ def retrouver_k (u):  #u est une liste avec n réalisations de U
 #printimage(retrouver_k([whitenoise(64,64,1) for i in range (5)]),"test_whitenoise")  #test pour k=1
 w = [whitenoise(64,64,1) for i in range (10)]
 #printimage(retrouver_k([convol_arr(k_arr,w[i]) for i in range(len(w))]),"test")   # on ne retrouve pas tout à fait k
+
+def retrouver(u):  #u est une liste avec n réalisations de U
+    n = len(u)
+    N,M = u[0].shape
+    gamma = np.zeros((N,M))
+    for i in range(n):
+        gamma += autocor(u[i])
+    gamma = (1/(n*(N**2))) * gamma
+    fft = np.sqrt(np.abs(fft2(gamma)))
+    k0 = np.real(ifft2(fft))
+    return k0, fftshift(fft), gamma, u[0]
+
+def affiche(u):
+    plt.subplot(2,2,1)
+    k0, fft, gamma, u = retrouver(u)
+    plt.title('k0')
+    plt.imshow(k0, cmap = 'gray')
+    plt.subplot(2,2,2)
+    plt.title('fft')
+    plt.imshow(fft, cmap = 'gray')
+    plt.subplot(2,2,3)
+    plt.title('gamma')
+    plt.imshow(gamma, cmap = 'gray')
+    plt.subplot(2,2,4)
+    plt.title('u')
+    plt.imshow(u, cmap = 'gray')
+
+            
+
+#k1 = np.real(ifft2(np.abs(fft2(k))))
+#fft_k1 = np.abs(fft2(k))
+#printimage(fftshift(fft_k1), 'fftk1')
+#plt.imshow(k)
+
+#printimage(retrouver_k([whitenoise(64,64,1) for i in range (5)]),"test_whitenoise")  #test pour k=1
+#w = [whitenoise(64,64,1) for i in range (500)]
+#k0 = retrouver_k([convol_arr(k_arr,w[i]) for i in range(len(w))])
+#u = [convol_arr(k_arr,w[i]) for i in range(len(w))]
+#printimage(retrouver_k([convol_arr(k_arr,w[i]) for i in range(len(w))])[1],"test")   # on ne retrouve pas tout à fait k
+
+k_t = np.zeros((8,8))
+for i in range(8):
+    for j in range(8):
+        k_t[i,j] = 1/64
+        
+k_cer = np.zeros((64,64))
+for i in range(64):
+    for j in range(64):
+        if (i-64)**2 + (j-64)**2 <= 64:
+            k_cer[i,j] = 1
+#printimage(k_cer, 'cercle')
+
+        
+wh = whitenoise(128,128,1)        
+u = convol_arr(k_cer, wh)
+printimage(u, 'convol_test')
+
+#affiche(u)

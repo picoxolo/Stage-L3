@@ -120,3 +120,18 @@ printimage(fft, 'abs_fftshift_k0')
 
 printimage(u, 'convol_test')
 
+def norme_2(u):
+    M,N = u.shape
+    S = 0
+    for i in range(M):
+        for j in range(N):
+            S += np.abs(u[i,j])**2
+    return np.sqrt(S)
+
+def seuil(gamma_ther, gamma_emp):
+    M,N = gamma_emp.shape
+    ecart_ther = np.sqrt(2/(M*N))*norme_2(gamma_ther)
+    ecart_emp = norme_2(gamma_ther - gamma_emp)/np.sqrt(M*N)
+    return np.abs(ecart_ther- ecart_emp)/np.abs(ecart_ther), ecart_ther, ecart_emp
+
+gamma_ther = autocor(k) #sigma = 1

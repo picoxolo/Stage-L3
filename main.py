@@ -106,19 +106,32 @@ for i in range(64):
 #printimage(k_cer, 'cercle')
 
 k = np.zeros((2048,2048))
-k[0,1], k[0,0], k[1,0], k[1,1] = 1,1,1,1        
+k[0,1], k[0,0], k[1,0], k[1,1] = 1,1,1,1
+k0 = convol(k,k)        
 
-k1 = np.real(ifft2(np.abs(fft2(k))))
-fft_k1 = np.abs(fft2(k))
-printimage(np.abs(fftshift(fft_k1)), 'fftk1')
+
+fft_k0 = np.abs(fft2(k0))
+#fprintimage(np.abs(fftshift(fft_k0)), 'fftk0')
         
 wh = whitenoise(2048,2048,1)        
-u_con = convol(k,wh)
+u_con = convol(k0,wh)
 
-k0, fft, gamma, u = retrouver(u_con)
-printimage(fft, 'abs_fftshift_k0')  
+kexp, fft, gamma, u = retrouver(u_con)
+#printimage(fft, 'abs_fftshift_kexp')  
 
-printimage(u, 'convol_test')
+def variance(fftk0,fftkexp):
+    N,M=np.shape(k0)
+    v=0
+    for i in range (N):
+        for j in range(M):
+            if fftk0[i,j]<10**(-2):
+                v+=1
+            else : 
+                v+= (fftk0[i,j]**2-fftkexp[i,j]**2)/(fftk0[i,j]**2)
+    return(v/(N*M))
+    
+print(variance(fft_k0,fft))
+#printimage(u, 'convol_test')
 
 def norme_2(u):
     M,N = u.shape

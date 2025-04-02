@@ -6,48 +6,12 @@ def whitenoise(N,M,sigma):
     noise = np.random.normal(0,sigma,(N,M))
     return(noise)
 
-def printimage(img, title):
-    plt.title(title)
-    plt.imshow(img, cmap="gray")
+def printimage(img, title): #img et title sont des listes de meme longueur
+    for i in range (len(img)):
+        plt.figure()
+        plt.title(title[i])
+        plt.imshow(img[i], cmap="gray")
     plt.show()
-
-#printimage(whitenoise(64,64,1),"whitenoise")
-
-k_dict ={(0,0):1, (1,0):1}
-
-def convol_dict(k,W):
-    N,M = np.shape(W)
-    U = np.zeros((N,M))
-    for i in range(N):
-        for j in range(M):
-            for (m,n) in k.keys():
-                U[i][j] += k[(m,n)]*W[i-m][j-n]
-    return U
-
-k_arr = np.array([[1,1], [1,1]])
-
-def convol_arr(k,W):
-    N,M = np.shape(W)
-    V,X = np.shape(k)
-    U = np.zeros((N,M))
-    for i in range(N):
-        for j in range(M):
-            for m in range(V):
-                for n in range(X):
-                    U[i][j] += k[m,n]*W[i-m][j-n]
-    return U
-
-
-
-def auto_cor(I): #U est réelle
-    N,M = I.shape
-    A = np.zeros((N,M))
-    for i in range(N):
-        for j in range(M):
-            for m in range(N):
-                for n in range(M):
-                    A[i][j] += I[(i+m)%N][(j+n)%M]*I[m][n]
-    return A
 
 def autocor(I):
     return np.real(ifft2(np.abs(fft2(I)**2)))
@@ -57,18 +21,6 @@ def convol(f,g):
 
 def k0(C):
     return np.real(ifft2(np.sqrt(np.abs(fft2(C)))))
-
-#printimage(autocor(convol_dict(k_dict,whitenoise(64,64,1))),"autocorrelationwhitenoise")
-
-def retrouver_k (u):  #u est une liste avec n réalisations de U
-    n = len(u)
-    N,M = u[0].shape
-    gamma = np.zeros((N,M))
-    for i in range(n):
-        gamma += autocor(u[i])
-    gamma = (1/(n*(N**2))) * gamma
-    k = np.real(ifft2(np.sqrt(np.abs(fft2(gamma)))))
-    return(k)
 
 def retrouver(u):  
     n = len(u)
@@ -92,32 +44,109 @@ def affiche(u):
     plt.subplot(2,2,4)
     plt.title('u')
     plt.imshow(u, cmap = 'gray')
+    
+def norme2(k):
+    M,N = np.shape(k)
+    norme = 0
+    for i in range(M):
+        for j in range(N):
+            norme += k[i,j]**2
+    return(norme**(1/2))
 
-k_t = np.zeros((8,8))
-for i in range(8):
-    for j in range(8):
-        k_t[i,j] = 1/64
-        
-k_cer = np.zeros((64,64))
-for i in range(64):
-    for j in range(64):
-        if (i-64)**2 + (j-64)**2 <= 64:
-            k_cer[i,j] = 1
-#printimage(k_cer, 'cercle')
+def norme1(k):
+    return(np.sum(np.abs(k)))
 
-k = np.zeros((2048,2048))
-k[0,1], k[0,0], k[1,0], k[1,1] = 1,1,1,1
-k0 = convol(k,k)        
+def renormalise(k):
+    norme = norme2(k)
+    return(k/norme)
+
+wh = whitenoise(2048,2048,1)
+
+#%%
+k_carre_petit = np.zeros((2048,2048))
+for i in range(50):
+    for j in range(50):
+        k_carre_petit[1024-i,1024-j] = 1
+        k_carre_petit[1024+i,1024+j] = 1
+        k_carre_petit[1024+i,1024-j] = 1
+        k_carre_petit[1024-i,1024+j] = 1
+    
+k_carre_petit_norme = renormalise(k_carre_petit)
+k_carre_petit_conv_norme = renormalise(convol (k_carre_petit_norme, k_carre_petit_norme))
 
 
-fft_k0 = np.abs(fft2(k0))
-#fprintimage(np.abs(fftshift(fft_k0)), 'fftk0')
-        
-wh = whitenoise(2048,2048,1)        
-u_con = convol(k0,wh)
+k_carre_grand = np.zeros((2048,2048))
+for i in range(200):
+    for j in range(200):
+        k_carre_grand[1024-i,1024-j] = 1
+        k_carre_grand[1024+i,1024+j] = 1
+        k_carre_grand[1024+i,1024-j] = 1
+        k_carre_grand[1024-i,1024+j] = 1
+    
+k_carre_grand_norme = renormalise(k_carre_grand)
+k_carre_grand_conv_norme = renormalise(convol (k_carre_grand_norme, k_carre_grand_norme))
 
+k_cer_tres_petit = np.zeros((2048,2048))
+for i in range(2048):
+    for j in range(2048):
+        if (i-1024)**2 + (j-1024)**2 <= 100:
+            k_cer_tres_petit[i,j] = 1
+
+k_cer_tres_petit_conv = convol (k_cer_tres_petit,k_cer_tres_petit)
+k_cer_tres_petit_conv_norme = renormalise(k_cer_tres_petit_conv)
+
+
+k_cer_petit = np.zeros((2048,2048))
+for i in range(2048):
+    for j in range(2048):
+        if (i-1024)**2 + (j-1024)**2 <= 1000:
+            k_cer_petit[i,j] = 1
+
+            
+k_cer_petit_conv = convol (k_cer_petit,k_cer_petit)
+k_cer_petit_conv_norme = renormalise(k_cer_petit_conv)
+
+k_cer_grand = np.zeros((2048,2048))
+for i in range(2048):
+    for j in range(2048):
+        if (i-1024)**2 + (j-1024)**2 <= 160000:
+            k_cer_grand[i,j] = 1
+            
+k_cer_grand_conv = convol (k_cer_grand,k_cer_grand)
+k_cer_grand_conv_norme = renormalise(k_cer_grand_conv)
+#%%
+              
+u_con = convol(k_cer_tres_petit_conv_norme,wh)
 kexp, fft, gamma, u = retrouver(u_con)
-#printimage(fft, 'abs_fftshift_kexp')  
+
+def ecart_norme2 (k0,k):
+    return(norme2(k0-k))
+
+def ecart_norme1 (k0,k):
+    return(norme1(k0-k))
+
+
+def cut(k,seuil):
+    M,N = np.shape(k)
+    for i in range(M):
+        for j in range(N):
+            if k[i,j] < seuil : 
+                k[i,j] = 0
+    return(k)
+
+kexp2 = renormalise(cut(kexp,0.001))  #comment choisir le seuil ???
+u_exp_norma = renormalise(convol(kexp2,wh))
+u_con_norma = renormalise(u_con)
+print(ecart_norme2(k_cer_tres_petit_conv_norme,kexp2))
+print(ecart_norme2(u_con_norma,u_exp_norma))
+printimage([fftshift(k_cer_tres_petit_conv_norme),fftshift(kexp2),fftshift(np.real(fft2(k_cer_tres_petit_conv_norme))**2),fftshift(np.real(fft2(kexp2))**2),u_exp_norma,u_con_norma],
+          ["trespetitcercleconvnorme",'kexp','ffttrespetitcercleconvnorme**2',"fftkexp**2","uexp","ucon"])
+
+
+
+
+
+
 
 def variance(fftk0,fftkexp):
     N,M=np.shape(k0)
@@ -130,21 +159,14 @@ def variance(fftk0,fftkexp):
                 v+= (fftk0[i,j]**2-fftkexp[i,j]**2)/(fftk0[i,j]**2)
     return(v/(N*M))
     
-print(variance(fft_k0,fft))
+#print(variance(fft_k0,fft))
 #printimage(u, 'convol_test')
 
-def norme_2(u):
-    M,N = u.shape
-    S = 0
-    for i in range(M):
-        for j in range(N):
-            S += np.abs(u[i,j])**2
-    return np.sqrt(S)
 
-def seuil(gamma_ther, gamma_emp):
+def ecart_exp(gamma_ther, gamma_emp):
     M,N = gamma_emp.shape
     ecart_ther = np.sqrt(2/(M*N))*norme_2(gamma_ther)
     ecart_emp = norme_2(gamma_ther - gamma_emp)/np.sqrt(M*N)
     return np.abs(ecart_ther- ecart_emp)/np.abs(ecart_ther), ecart_ther, ecart_emp
 
-gamma_ther = autocor(k) #sigma = 1
+#gamma_ther = autocor(k) #sigma = 1

@@ -32,7 +32,7 @@ def retrouver_g(tab_phi, tab_p,c,n):
     j = 0
     while i < N:
         if tab_p[i] == 0.:
-            while tab_p[i]:
+            while tab_p[i] == 0.:
                 T[i] = -c
         while tab_p[i] > tab_phi[j]:
             j+=1

@@ -60,71 +60,11 @@ def renormalise(k):
     norme = norme2(k)
     return(k/norme)
 
-wh = whitenoise(2048,2048,1)
-
-#%%
-k_carre_petit = np.zeros((2048,2048))
-for i in range(50):
-    for j in range(50):
-        k_carre_petit[1024-i,1024-j] = 1
-        k_carre_petit[1024+i,1024+j] = 1
-        k_carre_petit[1024+i,1024-j] = 1
-        k_carre_petit[1024-i,1024+j] = 1
-    
-k_carre_petit_norme = renormalise(k_carre_petit)
-k_carre_petit_conv_norme = renormalise(convol (k_carre_petit_norme, k_carre_petit_norme))
-
-
-k_carre_grand = np.zeros((2048,2048))
-for i in range(200):
-    for j in range(200):
-        k_carre_grand[1024-i,1024-j] = 1
-        k_carre_grand[1024+i,1024+j] = 1
-        k_carre_grand[1024+i,1024-j] = 1
-        k_carre_grand[1024-i,1024+j] = 1
-    
-k_carre_grand_norme = renormalise(k_carre_grand)
-k_carre_grand_conv_norme = renormalise(convol (k_carre_grand_norme, k_carre_grand_norme))
-
-k_cer_tres_petit = np.zeros((2048,2048))
-for i in range(2048):
-    for j in range(2048):
-        if (i-1024)**2 + (j-1024)**2 <= 100:
-            k_cer_tres_petit[i,j] = 1
-
-k_cer_tres_petit_conv = convol (k_cer_tres_petit,k_cer_tres_petit)
-k_cer_tres_petit_conv_norme = renormalise(k_cer_tres_petit_conv)
-
-
-k_cer_petit = np.zeros((2048,2048))
-for i in range(2048):
-    for j in range(2048):
-        if (i-1024)**2 + (j-1024)**2 <= 1000:
-            k_cer_petit[i,j] = 1
-
-            
-k_cer_petit_conv = convol (k_cer_petit,k_cer_petit)
-k_cer_petit_conv_norme = renormalise(k_cer_petit_conv)
-
-k_cer_grand = np.zeros((2048,2048))
-for i in range(2048):
-    for j in range(2048):
-        if (i-1024)**2 + (j-1024)**2 <= 160000:
-            k_cer_grand[i,j] = 1
-            
-k_cer_grand_conv = convol (k_cer_grand,k_cer_grand)
-k_cer_grand_conv_norme = renormalise(k_cer_grand_conv)
-#%%
-              
-u_con = convol(k_cer_tres_petit_conv_norme,wh)
-kexp, fft, gamma, u = retrouver(u_con)
-
 def ecart_norme2 (k0,k):
     return(norme2(k0-k))
 
 def ecart_norme1 (k0,k):
     return(norme1(k0-k))
-
 
 def cut(k,seuil):
     M,N = np.shape(k)
@@ -133,14 +73,6 @@ def cut(k,seuil):
             if k[i,j] < seuil : 
                 k[i,j] = 0
     return(k)
-
-kexp2 = renormalise(cut(kexp,0.001))  #comment choisir le seuil ???
-u_exp_norma = renormalise(convol(kexp2,wh))
-u_con_norma = renormalise(u_con)
-print(ecart_norme2(k_cer_tres_petit_conv_norme,kexp2))
-print(ecart_norme2(u_con_norma,u_exp_norma))
-printimage([fftshift(k_cer_tres_petit_conv_norme),fftshift(kexp2),fftshift(np.real(fft2(k_cer_tres_petit_conv_norme))**2),fftshift(np.real(fft2(kexp2))**2),u_exp_norma,u_con_norma],
-          ["trespetitcercleconvnorme",'kexp','ffttrespetitcercleconvnorme**2',"fftkexp**2","uexp","ucon"])
 
 
 

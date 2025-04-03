@@ -7,23 +7,20 @@ from scipy import integrate
 def f(x):
     return (1/np.sqrt(2*np.pi))*np.exp(-x**2/2)
 
-def tab_phi(l,n):
+def tab_phi(c,n):
     """
-    l désigne la longueur de l'itervalle sur laquelle on estime l'image de g
-    intervalle centré en 0
+    c tel que I = [-c,c], désigne la longueur du demi intervalle sur lequel on estime g
     n désigne le nombre de points, n impair
     """
-    a, k = 0, 0
-    h = l/n
+    h = c/((n-1)/2)
     T = np.zeros(n)
     s = int((n-1)/2)
     T[s] = 0.5
-    while s+k < n-1:
-        a += h
-        k += 1
-        T[s - k] = T[s - k + 1] - integrate.quad(f, a-h, a)[0]
-        T[s + k] = T[s + k - 1] + integrate.quad(f, a, a+h)[0]
+    for k in range(s+1):
+        print(k*h)
+        T[s+k] = integrate.quad(f, -np.inf, k*h)[0]
+        T[s-k] = integrate.quad(f, -np.inf, -k*h)[0]
     return T
 
-tab_phi(4,9)
+tab_phi(5,10000)
     

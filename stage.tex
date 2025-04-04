@@ -16,40 +16,40 @@
 
 \begin{section}{Définitions}
 
-U suit une loi gaussienne de paramètres $N(0, \Gamma)$.
+u suit une loi gaussienne de paramètres $N(0, \gamma)$.
 
-$U = k \ast W$ avec $k \in M_{M,N}(\mathbb{R}), W \in M_{M,N}(\mathbb{R})$
+$u = k \ast W$ avec $k \in M_{M,N}(\mathbb{R}), W \in M_{M,N}(\mathbb{R})$
 
 
 On assimile $\Omega$ à $\Omega = \frac{\mathbb{Z}}{M\mathbb{Z}} \times \frac{\mathbb{Z}}{N\mathbb{Z}}$.
 \\
-$\mathcal{F}(s)(x) = \sum_{ y \in \Omega}{s(y) \cdot e^{-2i \pi \langle x,y \rangle}}$ avec 
-$\langle x,y \rangle =  \frac{ x_1 y_1}{M} + \frac{ x_2 y_2}{N}$ pour $x = (x_1,x_2)$ et $y = (y_1,y_2)$
+$\mathcal{F}(s)(\xi) = \sum_{ \nu \in \Omega}{s(\nu) \cdot e^{-2i \pi \langle \xi,\nu \rangle}}$ avec 
+$\langle \xi,\nu \rangle =  \frac{ \xi_1 \nu_1}{M} + \frac{ \xi_2 \nu_2}{N}$ pour $\xi = (\xi_1,\xi_2)$ et $\nu = (\nu_1,\nu_2)$
 \\
-$A(k)(x) = \sum_{ y \in \Omega}{k(y)\bar{k(x+y)}}$ \
+$\mathcal{F}^{-1}(s)(x) = \frac{1}{MN}\sum_{ y \in \Omega}{s(y) \cdot e^{2i \pi \langle x,y \rangle}}$
+\\
+$A(k)(x) = \sum_{ y \in \Omega}{k(y)\overline{k(x+y)}}$ \\
 $A(k) = \mathcal{F}^{-1}( {\lvert \mathcal{F}(k) \rvert }^2)$
+\\
+d'où $\mathcal{F}(A(k)) =  {\lvert \mathcal{F}(k) \rvert }^2 $
 \\
 $f \ast g (x) = \sum_{ y \in \Omega}{f(y)g(y-x)}$
 \\
-$\Gamma = \sigma^{2} \cdot A(k) $
+$\gamma = \sigma^{2} \cdot A(k) $
 \\
-$k_0 = \mathcal{F}^{-1}( \sqrt{(\lvert \mathcal{F}(A(k) \rvert) }) = \mathcal{F}^{-1}( \sqrt{( \mathcal{F}(\frac{\Gamma}{\sigma^2}  }))$
+$k_0 = \mathcal{F}^{-1}( \sqrt{(\lvert \mathcal{F}(A(k) \rvert) }) = \mathcal{F}^{-1}( \sqrt{( \mathcal{F}(\frac{\gamma}{\sigma^2}  }))$
 \\
-Petite propriété:
-\\
-$\mathcal{F}(A(s))(x) = \mathcal{F}(s)^2(x)$ 
-\\
-Rappel : Il y a équivalence entre les trois points suivants:
+Rappel : Il y a équivalence entre les trois points suivants:\\
 $k_1 \ast W = k_2 \ast W$
 \\
 $A(k_1) = A(k_2)$
 \\
 $\lvert \mathcal{F}(k_1) \rvert = \lvert \mathcal{F}(k_2) \rvert$
-
-A partir d'une image $u = k \ast W$,$\mu = 0$, $\sigma = 1$, on définit:
-
-$\Gamma_{emp} = \tilde{\Gamma} = \frac{A(u)}{MN}$ \
-$k_{0,emp} = \tilde{k_0}= \mathcal{F}^{-1}( \sqrt{(\lvert \mathcal{F}(\tilde{\Gamma} \rvert) })$
+\\
+\\
+A partir d'une image $u = k \ast W$, pour $\mu = 0$ et $\sigma^2 = 1$, on définit:
+$\Gamma = \frac{A(u)}{MN}$ \\
+$K_0 =  \mathcal{F}^{-1}( \sqrt{\lvert \mathcal{F}(\Gamma) \rvert })$
 
 
 
@@ -57,22 +57,45 @@ $k_{0,emp} = \tilde{k_0}= \mathcal{F}^{-1}( \sqrt{(\lvert \mathcal{F}(\tilde{\Ga
 
 \begin{section}{Premiers résultats}
 
-$\mathbb{E}[\tilde{\Gamma}](x) = \tilde{\Gamma}(x) $\\
-$\mathbb{V}[\tilde{\Gamma}](x) = \frac{2 {\left\| \Gamma \right\|}^2_2}{(MN)^2}$
+$\mathbb{E}[\Gamma(x)] = {\gamma}(x) $
 \\
 \\
-$\mathbb{E}[\mathcal{F}(\tilde{k_0})^2](x) = \mathcal{F}({k_0})^2(x)$
-\\
-$\mathbb{V}[\mathcal{F}(\tilde{k_0})^2](x) = \mathcal{F}({k_0})^4(x)$
+Preuve : $ \mathbb{E}[\Gamma(x)] = \mathbb{E}[\frac{A(u)(x)}{MN}$] = $\frac{1}{MN}\mathbb{E}[\sum_{y \in \Omega}u(y)u(x+y)] = \frac{1}{MN}\sum_{y \in \Omega}Cov[u(y),u(x+y)] = \frac{1}{MN}\sum_{y \in \Omega}\gamma(x) = \gamma(x)$
 \\
 \\
-$\mathbb{E}[\mathcal{F}(\tilde{k_0})^2](x) = \mathbb{E}[\frac{\mathcal{F}(\tilde{\Gamma})}{\sigma^2}](x) = \frac{1}{\sigma^2}\cdot \mathbb{E}[\sum_{ y \in \Omega}{\tilde\Gamma(y) \cdot e^{-2i \pi \langle x,y \rangle}}] = \frac{1}{\sigma^2}\cdot \sum_{ y \in \Omega}{\mathbb{E}[\tilde\Gamma(y)] \cdot e^{-2i \pi \langle x,y \rangle}} = 
-\frac{1}{\sigma^2}\cdot \sum_{ y \in \Omega}{\Gamma(y) \cdot e^{-2i \pi \langle x,y \rangle}} =\frac{1}{\sigma^2}\cdot \mathcal{F}(\Gamma)(x) =\mathcal{F}(A(k_0))(x) = \mathcal{F}(k_0)^2(x) $
+$\mathbb{V}[\Gamma(x)] = \frac{2 {\left\| \gamma \right\|}^2_2}{(MN)^2}$
 \\
 \\
-$\mathbb{V}[\mathcal{F}(\tilde{k_0})^2](x) = \mathbb{E}[\mathcal{F}(\tilde{k_0})^4](x) - \mathbb{E}[\mathcal{F}(\tilde{k_0})^2]^2(x)$.
+Preuve : $\mathbb{V}[\Gamma(x)] = \mathbb{E}[\Gamma^2(x)] - \mathbb{E}[\Gamma(x)]^2 = 
+\mathbb{E}[\Gamma^2(x)] - {\gamma}(x)^2$
 \\
-D'une part, $\mathbb{E}[\mathcal{F}(\tilde{k_0})^4](x) = $
+$\mathbb{E}[\Gamma^2(x)] = \mathbb{E}[(\frac{1}{MN}\sum_{y \in \Omega}u(y)u(x+y))^2] = \frac{1}{(MN)^2}\sum_{y \in \Omega}\sum_{z \in \Omega}\mathbb{E}[u(y)u(x+y)u(z)u(x+z)] = 
+ \frac{1}{(MN)^2}\sum_{y \in \Omega}\sum{z \in \Omega}\mathbb{E}[\sum_{a \in \Omega}k(a)W(y-a)\sum_{b \in \Omega}k(b)W(x+y-b)\sum_{c \in \Omega}k(c)W(z-c)\sum_{a \in \Omega}k(d)W(x+z-d)] =  
+  \frac{1}{(MN)^2}\sum_{y \in \Omega}\sum{z \in \Omega}( \sum_{a \in \Omega}k(a)k(x+a)k(a+z-y)k(a+x+z-y)\mathbb{E}[W(y-a)^4] + \sum_{a \in \Omega}k(a)k(x+a)\mathbb{E}[W(y-a)^2]\sum_{c \in \Omega}k(c)k(x+c)\mathbb{E}[W(z-c)^2] + \sum_{a \in \Omega}k(a)k(a+z-y)\mathbb{E}[W(y-a)^2]\sum_{b \in \Omega}k(b)k(b+z-y)\mathbb{E}[W(x+y-b)^2]+ \sum_{a \in \Omega}k(a)k(a+x+z-y)\mathbb{E}[W(y-a)^2]\sum_{b \in \Omega}k(b)k(b+x+z-y)\mathbb{E}[W(x+y-b)^2] = 
+ \frac{1}{(MN)^2}\sum_{y \in \Omega}\sum{z \in \Omega}( \sum_{a \in \Omega}k(a)k(x+a)k(a+z-y)k(a+x+z-y)\mathbb{E}3\sigma^4 + \sum_{a \in \Omega}k(a)k(x+a)\sigma^2\sum_{c \in \Omega}k(c)k(x+c)\sigma^2 + \sum_{a \in \Omega}k(a)k(a+z-y)\sigma^2\sum_{b \in \Omega}k(b)k(b+z-y)\sigma^2+ \sum_{a \in \Omega}k(a)k(a+x+z-y)\sigma^2\sum_{b \in \Omega}k(b)k(b+x+z-y)\sigma^2
+ =
+ \frac{1}{(MN)^2}\sigma^4\sum_{y \in \Omega}\sum{z \in \Omega}(A(k_0)(x)^2 + A(k_0)(z-y)^2 + A(k_0)(z+x-y)^2) =  
+ \gamma(x)^2 +2\sigma^4\frac{1}{(MN)}\sum_{y \in \Omega} A(k)(y)^2 
+ = \gamma(x)^2  + \frac{2 {\left\| \gamma \right\|}^2_2}{(MN)^2}$
+\\
+\\
+$\mathbb{E}[\mathcal{F}(K_0)^2(\xi)] = \mathcal{F}({k_0})^2(\xi)$
+\\
+$\mathbb{V}[\mathcal{F}(K_0)^2(\xi)] = \mathcal{F}({k_0})^4(\xi)$
+\\
+\\
+$\mathbb{E}[\mathcal{F}(K_0)^2(\xi)] = \mathbb{E}[\frac{\mathcal{F}(\Gamma)}{\sigma^2}](\xi) = \frac{1}{\sigma^2}\cdot \mathbb{E}[\sum_{ \nu \in \Omega}{\Gamma(\nu) \cdot e^{-2i \pi \langle \xi,\nu \rangle}}] = \frac{1}{\sigma^2}\cdot \sum_{ \nu \in \Omega}{\mathbb{E}[\Gamma(\nu)] \cdot e^{-2i \pi \langle \xi,\nu \rangle}} = 
+\frac{1}{\sigma^2}\cdot \sum_{ \nu \in \Omega}{\gamma(\nu) \cdot e^{-2i \pi \langle \xi,\nu \rangle}} =\frac{1}{\sigma^2}\cdot \mathcal{F}(\gamma)(\xi) =\mathcal{F}(A(k_0))(\xi) = \mathcal{F}(k_0)^2(\xi) $
+\\
+\\
+$\mathbb{V}[\mathcal{F}(K_0)^2(\xi)] = \mathbb{E}[\mathcal{F}(K_0)^4(\xi)] - \mathbb{E}[\mathcal{F}(K_0)^2(\xi)]^2$.
+\\
+\\
+D'une part, $\mathbb{E}[\mathcal{F}(K_0)^4(\xi)]= $
+\\
+\\
+$\mathbb{V}[\Gamma](x) = \mathbb{E}[\Gamma^2](x) - \mathbb{E}[\Gamma](x)^2 =  \mathbb{E}[\Gamma^2](x) - \Gamma(x)^2$
+
 
 
 \end{section}

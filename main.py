@@ -28,7 +28,7 @@ def retrouver(u):
     gamma = autocor(u)/(N*M)
     fft = np.sqrt(np.abs(fft2(gamma)))
     k0 = np.real(ifft2(fft))
-    return k0, fftshift(fft), gamma, u
+    return k0, fftshift(fft), gamma
 
 def affiche(u):
     plt.subplot(2,2,1)
@@ -56,7 +56,7 @@ def norme2(k):
 def norme1(k):
     return(np.sum(np.abs(k)))
 
-def renormalise(k):
+def renormalise2(k):
     norme = norme2(k)
     return(k/norme)
 
@@ -76,29 +76,19 @@ def cut(k,seuil):
 
 
 
-
-
-
-
-def variance(fftk0,fftkexp):
-    N,M=np.shape(k0)
+def variance(exp,esp):
+    M,N=np.shape(exp)
     v=0
-    for i in range (N):
-        for j in range(M):
-            if fftk0[i,j]<10**(-2):
-                v+=1
-            else : 
-                v+= (fftk0[i,j]**2-fftkexp[i,j]**2)/(fftk0[i,j]**2)
-    return(v/(N*M))
-    
-#print(variance(fft_k0,fft))
-#printimage(u, 'convol_test')
+    for i in range (M):
+        for j in range(N):
+            v += (exp[i,j] - esp[i,j])**2
+    return v/(N*M)
 
 
 def ecart_exp(gamma_ther, gamma_emp):
     M,N = gamma_emp.shape
-    ecart_ther = np.sqrt(2/(M*N))*norme_2(gamma_ther)
-    ecart_emp = norme_2(gamma_ther - gamma_emp)/np.sqrt(M*N)
+    ecart_ther = np.sqrt(2/(M*N))*norme2(gamma_ther)
+    ecart_emp = norme2(gamma_ther - gamma_emp)/np.sqrt(M*N)
     return np.abs(ecart_ther- ecart_emp)/np.abs(ecart_ther), ecart_ther, ecart_emp
 
 #gamma_ther = autocor(k) #sigma = 1

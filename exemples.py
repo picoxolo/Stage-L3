@@ -123,3 +123,27 @@ mp.printimage([
     ],
     ["grand_cercle_convo_normé : k0",'k_exp','fft_grand_cercle_convo_norme**2',"fft_kexp**2","u_exp","u"])
 '''
+
+'''
+k_dirac = np.zeros((2048,2048))
+k_dirac[1024,1024] = 1
+k_dirac_conv = mp.convol (k_dirac,k_dirac)
+k_dirac_conv_norme = mp.renormalise2(k_dirac_conv)
+u_conv_dirac = mp.convol(k_dirac_conv_norme,wh)
+k_exp_dirac, fft_k_exp_dirac, gamma_exp_dirac = mp.retrouver(u_conv_dirac)
+gamma_dirac = mp.autocor(k_dirac_conv_norme)
+k_exp_dirac_2 = mp.renormalise2(k_exp_dirac)
+u_exp_dirac_norma2 = mp.renormalise2(mp.convol(k_exp_dirac_2,wh))
+u_dirac_norma2 = mp.renormalise2(u_conv_dirac)
+print("ecart k :", mp.ecart_norme2(k_exp_dirac_2,k_dirac_conv_norme))
+print("ecart u :", mp.ecart_norme2(u_exp_dirac_norma2,u_dirac_norma2))
+print("norme2 gamma_exp =",mp.norme2(gamma_exp_dirac),"  norme2 gamma =",mp.norme2(gamma_dirac))
+print("ecart type sur gamma(x) =", (2*(mp.norme2(gamma_dirac)**2)/(2048**2))**(1/2))
+print("ecart type exp gamma(x) =", mp.variance(gamma_exp_dirac,gamma_dirac)**(1/2))
+mp.printimage([fftshift(gamma_dirac),fftshift(gamma_exp_dirac)],["gamma","gamma_exp"])
+mp.printimage([
+    fftshift(k_dirac_conv_norme),fftshift(k_exp_dirac_2),fftshift(np.real(fft2(k_dirac_conv_norme))**2),
+    fftshift(np.real(fft2(k_exp_dirac_2))**2),u_exp_dirac_norma2,u_dirac_norma2
+    ],
+    ["dirac_convo_normé : k0",'k_exp','fft_dirac_convo_norme**2',"fft_kexp**2","u_exp","u"])
+'''

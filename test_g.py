@@ -1,69 +1,64 @@
 import numpy as np
 import main as mp
+import exemples as ex
 from numpy.fft import fft2, ifft2, fftshift
 import matplotlib.pyplot as plt
 from scipy import integrate
 
 #on veut P(g(X)<=a)
 def proba_exp (U,l,n): #l: demi-longueur de l'intervalle n: nombre de points impairs
-    liste = np.array([0]*n, dtype=np.float64)  #liste qui découpe 
+    liste = np.array([0]*n, dtype=np.float64)  #liste qui découpe [-l,l] en n points
     M,N = np.shape(U)
     for i in range(M):
         for j in range(N):
-            k = int(np.ceil((2*n/l)*U[i,j])) #on trouve le premier moment ou on est plus petit est on rajoute 1 dans la case
-            if k + (n-1)//2 < n :
+            k = int(np.ceil(((n-1)/(2*l))*U[i,j])) #on trouve le premier moment ou on est plus petit est on rajoute 1 dans la case
+            if (k + (n-1)//2 <n) and (k + (n-1)//2 >= 0): 
                 liste[k + (n-1)//2 ] += 1
     c=0
-    for i in range(n-1): #Puis on "propage" à tous les indices supérieurs
+    for i in range(n): #Puis on "propage" à tous les indices supérieurs
         c += liste[i]
         liste[i] += c - liste[i]
     return(liste/(N*M))
 
-print(proba_exp (mp.whitenoise(1024,1024,1),2,20))
-
 def f(x):
     return (1/np.sqrt(2*np.pi))*np.exp(-x**2/2)
 
-
-def tab_phi(c, n):
+def tab_phi(l, n):
     """
-    c tel que I = [-c,c], désigne la longueur du demi intervalle sur lequel on estime g
+    l tel que I = [-l,l], désigne la longueur du demi intervalle sur lequel on estime g
     n désigne le nombre de points, n impair
     """
-    h = c/((n-1)/2)
+    h = 2*l/(n-1)
     T = np.zeros(n)
     s = int((n-1)/2)
     T[s] = 0.5
-    for k in range(s+1):
+    for k in range(1,s+1):
         T[s+k] = integrate.quad(f, -np.inf, k*h)[0]
         T[s-k] = integrate.quad(f, -np.inf, -k*h)[0]
     return T
 
-def retrouver_g(tab_phi, tab_p,c,n):
-    h = c/((n-1)/2)
-    s = int((n-1)/2)
+def retrouver_g(tab_phi, tab_p,l_phi,n):
     N = len(tab_phi)
+    h = 2*l_phi/(N-1)
+    s = int((N-1)/2)
     T = np.zeros(n)
     i = 0
     j = 0
+    while tab_p[i] == 0.:
+        T[i] = -l_phi
+        i +=1
     while i < n:
-        if tab_p[i] == 0.:
-            while tab_p[i] == 0.:
-                T[i] = -c
-        while tab_p[i] > tab_phi[j]:
+        while (tab_p[i] > tab_phi[j]) and (j<N-1):
             j+=1
-        if j <= s:
-            T[i] = -(s-j)*h
-        else:
-            T[i] = j*h
+        T[i] = (-s+j)*h
         i+=1
     return T
 
-#print(retrouver_g(tab_phi(5,1000),proba_exp(mp.whitenoise(2048,2048,1),4,1000),2,1000))
-
-def plot_g (T,c,n):
-    ordonnee = [(2*c/(n-1))*k for k in range ((-n+1)//2,((n+1)//2))]
-    plt.plot(T,ordonnee)
+def plot_g_exp (T,l,n,g,titre):
+    ordonnee = np.array([(2*l/(n-1))*k for k in range ((-n+1)//2,((n+1)//2),1)])
+    l = np.linspace(T[0],T[-1],1000)
+    plt.plot(T,ordonnee, label = "g_exp")
+    plt.plot(l,g(l), label = "g")
+    plt.legend()
+    plt.title(titre)
     plt.show()
-    
-plot_g(retrouver_g(tab_phi(5,1000),proba_exp(mp.whitenoise(2048,2048,1),4,1000),2,1000),4,1000)

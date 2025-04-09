@@ -4,6 +4,10 @@ import exemples_k as ex
 from numpy.fft import fft2, ifft2, fftshift
 import matplotlib.pyplot as plt
 from scipy import integrate
+import pickle
+
+with open("data.pkl", "rb") as f:
+    data_loaded = pickle.load(f)
 
 #on veut P(g(X)<=a)
 def proba_exp (U,l,n): #l: demi-longueur de l'intervalle n: nombre de points impairs
@@ -64,3 +68,33 @@ def plot_g_exp (T,l,g,titre):
     plt.legend()
     plt.title(titre)
     plt.show()
+
+def inverser_g (T,U,l):
+    n=len(T)
+    M,N = np.shape(U)
+    for i in range(M):
+        for j in range(N):
+            k=int(np.floor((n-1)*U[i,j]/(2*l)))
+            U[i,j] = T[(k+(n-1)//2)]
+    return(U)
+
+
+def retrouve_tot(U, k0=0, g0=0, titre="", U0=0):
+    T=retrouver_g(data_loaded["tab_phi"],proba_exp(U,5,10001),5)
+    U_exp = inverser_g(T,U,5)
+    k_exp = mp.retrouver(U_exp)[0]
+    n = len(T)
+    ordonnee = np.array([(2*5/(n-1))*k for k in range ((-n+1)//2,((n+1)//2),1)])
+    lin = np.linspace(T[0],T[-1],1000)
+    plt.plot(T,ordonnee, label = "g_exp")
+    if k0!=0:
+        plt.plot(lin,g0(lin), label = "g0")
+        plt.title(titre)
+    plt.legend()
+    plt.show()  
+    if k0 !=0: 
+        mp.printimage([U_exp,U0, fftshift(k_exp),fftshift(k0)],
+              ["exp","vrai","k_exp","k0"])
+    else:
+        mp.printimage([fftshift(k_exp)],
+              ["k_exp"])

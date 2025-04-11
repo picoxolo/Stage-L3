@@ -12,78 +12,99 @@ with open("data.pkl", "rb") as f:
 def id(x):
     return(x)
 """
-rtg.plot_g_exp(rtg.retrouver_g(data_loaded["tab_phi"],rtg.proba_exp(id(data_loaded["u_conv_tpce"]),5,1001),5),
-               5,id,"g(x) = x")
+rtg.plot_g_exp(rtg.proba_exp(data_loaded["u_conv_tpce"],10000),rtg.tab_phi(10000),id,"g(x)=x")
 
-rtg.plot_g_exp(rtg.retrouver_g(data_loaded["tab_phi"],rtg.proba_exp(id(data_loaded["u_conv_pce"]),5,1001),5),
-               5,id,"g(x) = x")
+rtg.plot_g_exp(rtg.proba_exp(data_loaded["u_conv_pce"],10000),rtg.tab_phi(10000),id,"g(x)=x")
 
-rtg.plot_g_exp(rtg.retrouver_g(data_loaded["tab_phi"],rtg.proba_exp(id(data_loaded["u_conv_gce"]),5,1001),5),
-               5,id,"g(x) = x")
+rtg.plot_g_exp(rtg.proba_exp(data_loaded["u_conv_gce"],10000),rtg.tab_phi(10000),id,"g(x)=x")
+
+rtg.retrouve_tot(data_loaded["u_conv_tpce"],5000,data_loaded["k_cer_tres_petit_conv_norme"],
+                 id,"g(x)=x",data_loaded["u_conv_tpce"],1)
+            
+rtg.retrouve_tot(data_loaded["u_conv_pce"],5000,data_loaded["k_cer_petit_conv_norme"],
+                 id,"g(x)=x",data_loaded["u_conv_pce"],1)
+
+rtg.retrouve_tot(data_loaded["u_conv_gce"],5000,data_loaded["k_cer_grand_conv_norme"],
+                 id,"g(x)=x",data_loaded["u_conv_gce"],1)
 """
 
 def id2(x):
     return(2*x)
 '''
-rtg.plot_g_exp(rtg.retrouver_g(data_loaded["tab_phi"],rtg.proba_exp(id2(data_loaded["u_conv_tpce"]),5,1001),5),
-              5,id2,"g(x) = 2x")
+rtg.plot_g_exp(rtg.proba_exp(id2(data_loaded["u_conv_tpce"]),5000),rtg.tab_phi(5000),id2,"g(x)=2x")
 
-rtg.plot_g_exp(rtg.retrouver_g(data_loaded["tab_phi"],rtg.proba_exp(id2(data_loaded["u_conv_pce"]),5,1001),5),
-              5,id2,"g(x) = 2x")
+rtg.plot_g_exp(rtg.proba_exp(id2(data_loaded["u_conv_pce"]),5000),rtg.tab_phi(5000),id2,"g(x)=2x")
 
-rtg.plot_g_exp(rtg.retrouver_g(data_loaded["tab_phi"],rtg.proba_exp(id2(data_loaded["u_conv_gce"]),5,1001),5),
-              5,id2,"g(x) = 2x")
+rtg.plot_g_exp(rtg.proba_exp(id2(data_loaded["u_conv_gce"]),5000),rtg.tab_phi(5000),id2,"g(x)=2x")
+
+rtg.retrouve_tot(id2(data_loaded["u_conv_tpce"]),5000,data_loaded["k_cer_tres_petit_conv_norme"],
+                 id2,"g(x)=2x",data_loaded["u_conv_tpce"],1)
+            
+rtg.retrouve_tot(id2(data_loaded["u_conv_pce"]),5000,data_loaded["k_cer_petit_conv_norme"],
+                 id2,"g(x)=2x",data_loaded["u_conv_pce"],1)
+
+rtg.retrouve_tot(id2(data_loaded["u_conv_gce"]),5000,data_loaded["k_cer_grand_conv_norme"],
+                 id2,"g(x)=2x",data_loaded["u_conv_gce"],1)
 '''
 
 def x3(x):
     return(x**3)
 '''
-rtg.plot_g_exp(rtg.retrouver_g(data_loaded["tab_phi"],rtg.proba_exp(x3(data_loaded["u_conv_tpce"]),5,1001),5),
-               5,x3,"g(x)=x^3")
+rtg.plot_g_exp(rtg.proba_exp(x3(data_loaded["u_conv_tpce"]),5000),rtg.tab_phi(5000),x3,"g(x)=x^3")
 
-rtg.plot_g_exp(rtg.retrouver_g(data_loaded["tab_phi"],rtg.proba_exp(x3(data_loaded["u_conv_pce"]),5,1001),5),
-               5,x3,"g(x)=x^3")
+rtg.plot_g_exp(rtg.proba_exp(x3(data_loaded["u_conv_pce"]),5000),rtg.tab_phi(5000),x3,"g(x)=x^3")
 
-rtg.plot_g_exp(rtg.retrouver_g(data_loaded["tab_phi"],rtg.proba_exp(x3(data_loaded["u_conv_gce"]),5,1001),5),
-               5,x3,"g(x)=x^3")
+rtg.plot_g_exp(rtg.proba_exp(x3(data_loaded["u_conv_gce"]),5000),rtg.tab_phi(5000),x3,"g(x)=x^3")
+
+rtg.retrouve_tot(x3(data_loaded["u_conv_tpce"]),5000,data_loaded["k_cer_tres_petit_conv_norme"],
+                 x3,"g(x)=x^3",data_loaded["u_conv_tpce"],1)
+
+rtg.retrouve_tot(x3(data_loaded["u_conv_pce"]),5000,data_loaded["k_cer_petit_conv_norme"],
+                 x3,"g(x)=x^3",data_loaded["u_conv_pce"],1)
+
+rtg.retrouve_tot(x3(data_loaded["u_conv_gce"]),5000,data_loaded["k_cer_grand_conv_norme"],
+                 x3,"g(x)=x^3",data_loaded["u_conv_gce"],1)
 '''
 
 def seuil(x):
-    if x>0:
+    if x>2.5:
         return(1/2)
     return(-1/2)
 seuil_vect = np.vectorize(seuil)
 '''
-rtg.plot_g_exp(rtg.retrouver_g(data_loaded["tab_phi"],rtg.proba_exp(seuil_vect(data_loaded["u_conv_tpce"]),1,1001),5),
-               1,seuil_vect,"seuil")
+rtg.plot_g_exp(rtg.proba_exp(seuil_vect(data_loaded["u_conv_tpce"]),1000),rtg.tab_phi(1000),seuil_vect,"seuil")
 
-rtg.plot_g_exp(rtg.retrouver_g(data_loaded["tab_phi"],rtg.proba_exp(seuil_vect(data_loaded["u_conv_pce"]),1,1001),5),
-               1,seuil_vect,"seuil")
+rtg.plot_g_exp(rtg.proba_exp(seuil_vect(data_loaded["u_conv_pce"]),5000),rtg.tab_phi(5000),seuil_vect,"seuil")
 
-rtg.plot_g_exp(rtg.retrouver_g(data_loaded["tab_phi"],rtg.proba_exp(seuil_vect(data_loaded["u_conv_gce"]),1,1001),5),
-               1,seuil_vect,"seuil")
+rtg.plot_g_exp(rtg.proba_exp(seuil_vect(data_loaded["u_conv_gce"]),5000),rtg.tab_phi(5000),seuil_vect,"seuil")
+
+rtg.retrouve_tot(seuil_vect(data_loaded["u_conv_tpce"]),5000,data_loaded["k_cer_tres_petit_conv_norme"],
+                 seuil_vect,"seuil",data_loaded["u_conv_tpce"],1)
+
+rtg.retrouve_tot(seuil_vect(data_loaded["u_conv_pce"]),5000,data_loaded["k_cer_petit_conv_norme"],
+                 seuil_vect,"seuil",data_loaded["u_conv_pce"],1)
+
+rtg.retrouve_tot(seuil_vect(data_loaded["u_conv_gce"]),5000,data_loaded["k_cer_grand_conv_norme"],
+                 seuil_vect,"seuil",data_loaded["u_conv_gce"],1)
 '''
 
 #arctan
 '''
-rtg.plot_g_exp(rtg.retrouver_g(data_loaded["tab_phi"],rtg.proba_exp(np.arctan(data_loaded["u_conv_tpce"]),2,1001),5),
-               2,np.arctan,"arctan")
+rtg.plot_g_exp(rtg.proba_exp(np.arctan(data_loaded["u_conv_tpce"]),5000),rtg.tab_phi(5000),np.arctan,"g(x)=arctan(x)")
 
-rtg.plot_g_exp(rtg.retrouver_g(data_loaded["tab_phi"],rtg.proba_exp(np.arctan(data_loaded["u_conv_pce"]),2,1001),5),
-               2,np.arctan,"arctan")
+rtg.plot_g_exp(rtg.proba_exp(np.arctan(data_loaded["u_conv_pce"]),5000),rtg.tab_phi(5000),np.arctan,"g(x)=arctan(x)")
 
-rtg.plot_g_exp(rtg.retrouver_g(data_loaded["tab_phi"],rtg.proba_exp(np.arctan(data_loaded["u_conv_gce"]),2,1001),5),
-               2,np.arctan,"arctan")
+rtg.plot_g_exp(rtg.proba_exp(np.arctan(data_loaded["u_conv_gce"]),5000),rtg.tab_phi(5000),np.arctan,"g(x)=arctan(x)")
+
+rtg.retrouve_tot(np.arctan(data_loaded["u_conv_tpce"]),5000,data_loaded["k_cer_tres_petit_conv_norme"],
+                 np.arctan,"g(x)=actan(x)",data_loaded["u_conv_tpce"],1)
+
+rtg.retrouve_tot(np.arctan(data_loaded["u_conv_pce"]),5000,data_loaded["k_cer_petit_conv_norme"],
+                 np.arctan,"g(x)=actan(x)",data_loaded["u_conv_pce"],1)
+
+rtg.retrouve_tot(np.arctan(data_loaded["u_conv_gce"]),5000,data_loaded["k_cer_grand_conv_norme"],
+                 np.arctan,"g(x)=actan(x)",data_loaded["u_conv_gce"],1)
 '''
-#U_exp = rtg.inverser_g(rtg.retrouver_g(data_loaded["tab_phi"],rtg.proba_exp(np.arctan(data_loaded["u_conv_pce"]),5,10001),5),
-#                       np.arctan(data_loaded["u_conv_pce"]),5)
-
-#k_exp = mp.retrouver(U_exp)[0]
-
-#mp.printimage([U_exp,data_loaded["u_conv_pce"],fftshift(k_exp),fftshift(data_loaded["k_cer_petit_conv_norme"])],
-#              ["exp","vrai","k_exp","k0"])
-
-rtg.retrouve_tot(np.arctan(data_loaded["u_conv_pce"]))
 
 '''
 data = {

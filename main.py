@@ -30,6 +30,11 @@ def retrouver(u):
     k0 = np.real(ifft2(fft))
     return k0, fftshift(fft), gamma
 
+def retrouver_K0(gamma):
+    fft = np.sqrt(np.abs(fft2(gamma)))
+    K_0 = np.real(ifft2(fft))
+    return K_0
+
 def affiche(u):
     plt.subplot(2,2,1)
     k0, fft, gamma, u = retrouver(u)

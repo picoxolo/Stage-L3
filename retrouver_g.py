@@ -157,8 +157,7 @@ def gamma_emp(a,v):
 
 def retrouve_seuil(v,n):
     t_phi, t_p = tab_phi(n), proba_exp(v,n) #t_phi = abscisses, t_p = ordonnées
-    first_value = v[0][0]
-    index = np.searchsorted(v,tab_p[-1]) #dichotomie, O(log n)
+    index = np.searchsorted(t_p,t_p[-1]) #dichotomie, O(log n)
     return t_phi[index] #a
 
     

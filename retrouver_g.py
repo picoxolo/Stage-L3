@@ -62,7 +62,7 @@ def find_closest_index(l, x):
     else:
         return pos - 1
     
-def inverser_g (U,tab_p,tab_phi):
+def inverser_g(U,tab_p,tab_phi):
     n=len(tab_p)
     M,N = np.shape(U)
     for i in range(M):
@@ -91,24 +91,74 @@ def retrouve_tot(U, n, k0=np.array([[]]), g0=None, titre="", U0=None,a=0):
     else:
         mp.printimage([fftshift(k_exp)],
               ["k_exp"])
-#%%
-def F_prime(p):
+        
+def retrouve_tot_seuil(v,n,k0=np.array([[]]), g0=None, titre="", t=0):
+    #k et g = seuil
+    t_phi, t_p = tab_phi(n), proba_exp(v,n) #t_phi = abscisses, t_p = ordonnées
+    index = np.searchsorted(t_p,t_p[-1]) #dichotomie, O(log n)  
+    a = t_phi[index]
+    k_exp = mp.retrouver_K0(gamma_emp(a,v))
+    ordonnee = t_p
+    abscisse = t_phi
+    lin = np.linspace(abscisse[0],abscisse[-1],1000)
+    plt.plot(abscisse,ordonnee, label = "g_exp")
+    if t!=0:
+        plt.plot(lin,g0(lin), label = "g0")
+        plt.title(titre)
+    plt.legend()
+    plt.show()  
+    if t!=0: 
+        mp.printimage([fftshift(k_exp),fftshift(k0)],
+              ["k_exp","k0"])
+    else:
+        mp.printimage([fftshift(k_exp)],
+              ["k_exp"])
+    
+    
+def F_prime(a,p):
+    a,p = np.float64(a),np.float64(p)
     return 1/(2*np.pi*np.sqrt(1-p**2))*np.exp(-a**2/(1+p))
 
-def F(p):
-    return integrate.quad(F_prime, -1, p)[0] + phi(np.abs(a)) - phi(a)
+def F(a,p):
+    def g(p):
+        return F_prime(a,p)
+    return integrate.quad(g, -1, p)[0] + phi(np.abs(a)) - phi(a)
     
 #cf retour d'erreur si on sort de la plage
-def F_inv(p):
-    inverse_F = brentq(lambda x: F(x) - p, -30, 30)
+def F_inv(a,p):
+    def g(x):
+        return F(a,x)
+    inverse_F = brentq(lambda x: g(x) - p, -1, 1)
     return inverse_F
     
-def gamma_emp(u):
-    M,N = u.shape
-    aut = mn.autocor(u)
+def gamma_emp(a,v):
+    M,N = v.shape
+    k,l = 0,0
+    c1,c2 = v[0][0], v[0][0]
+    while (k < M) and c1==c2:
+        while l < N and c1==c2:
+            if v[k,l] < c1:
+                c1 = v[k,l]
+            if v[k,l] > c1:
+                c2 = v[k,l]
+            l +=1
+        k+=1
+        l=0
+    if c1==c2:
+        raise Exception("Constant image")
+    else:
+        v = (v-c1)/(c2-c1)
+    aut = mp.autocor(v)/(M*N)
     gam = np.zeros((M,N))
     for i in range(M):
         for j in range(N):
-            gam[i,j] = F_inv(aut[i,j])
+            gam[i,j] = F_inv(a,aut[i,j])
     return gam
+
+def retrouve_seuil(v,n):
+    t_phi, t_p = tab_phi(n), proba_exp(v,n) #t_phi = abscisses, t_p = ordonnées
+    first_value = v[0][0]
+    index = np.searchsorted(v,tab_p[-1]) #dichotomie, O(log n)
+    return t_phi[index] #a
+
     

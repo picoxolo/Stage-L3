@@ -91,3 +91,24 @@ def retrouve_tot(U, n, k0=np.array([[]]), g0=None, titre="", U0=None,a=0):
     else:
         mp.printimage([fftshift(k_exp)],
               ["k_exp"])
+#%%
+def F_prime(p):
+    return 1/(2*np.pi*np.sqrt(1-p**2))*np.exp(-a**2/(1+p))
+
+def F(p):
+    return integrate.quad(F_prime, -1, p)[0] + phi(np.abs(a)) - phi(a)
+    
+#cf retour d'erreur si on sort de la plage
+def F_inv(p):
+    inverse_F = brentq(lambda x: F(x) - p, -30, 30)
+    return inverse_F
+    
+def gamma_emp(u):
+    M,N = u.shape
+    aut = mn.autocor(u)
+    gam = np.zeros((M,N))
+    for i in range(M):
+        for j in range(N):
+            gam[i,j] = F_inv(aut[i,j])
+    return gam
+    

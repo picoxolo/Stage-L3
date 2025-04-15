@@ -91,13 +91,90 @@ def retrouve_tot(U, n, k0=np.array([[]]), g0=None, titre="", U0=None,a=0):
     else:
         mp.printimage([fftshift(k_exp)],
               ["k_exp"])
-        
-def retrouve_tot_seuil(v,n,k0=np.array([[]]), g0=None, titre="", t=0):
+    
+    
+def F_prime(a,p):
+    a,p = np.float64(a),np.float64(p)
+    return 1/(2*np.pi*np.sqrt(1-p**2))*np.exp(-a**2/(1+p))
+
+def F(a,p):
+    def g(p):
+        return F_prime(a,p)
+    if p==-1:
+        return(phi(np.abs(a)) - phi(a))
+    else:
+        return integrate.quad(g, -1, p)[0] + phi(np.abs(a)) - phi(a)
+    
+
+#cf retour d'erreur si on sort de la plage
+def F_inv(a,p):
+    def g(x):
+        return F(a,x)
+    inverse_F = brentq(lambda x: g(x) - p, -1, 1)
+    return inverse_F
+
+def F_inv_main(a,p,n):
+    f = [F(a,-1 + i/n) for i in range(2*n+1)]
+    index = find_closest_index(f,p)
+    return(-1+index/n)
+
+def plot_F_F_inv(a,n):
+    abscisse = np.array([(-1+i/n) for i in range(2*n+1)])
+    def g(x):
+        return F(a,x)
+    g_vect = np.vectorize(g)
+    f = g_vect(abscisse)
+    plt.plot(abscisse,f)
+    plt.title(F)
+    f_inv = []
+    j=0
+    for i in range(2*n+1):
+        while (-1+i/n)>=f[j] and j<2*n:
+            j+=1
+        f_inv.append(-1+j/n)
+    plt.plot(abscisse,f_inv)
+    plt.title(F_inv)
+    plt.show()
+    
+    
+def gamma_emp(a,v,n): #n precision pour f^-1
+    M,N = v.shape
+    k,l = 0,0
+    c1,c2 = v[0][0], v[0][0]
+    while ((k < M) and c1==c2):
+        while (l < N and c1==c2):
+            if v[k,l] < c1:
+                c1 = v[k,l]
+            if v[k,l] > c1:
+                c2 = v[k,l]
+            l +=1
+        k+=1
+        l=0
+    if c1==c2:
+        raise Exception("Constant image")
+    else:
+        v = (v-c1)/(c2-c1)
+    aut = mp.autocor(v)/(M*N)
+    gam = np.zeros((M,N))
+    f = [F(a,-1 + i/n) for i in range(2*n+1)]
+    for i in range(M):
+        for j in range(N):
+            index = find_closest_index(f,aut[i,j])
+            gam[i,j] = -1+index/n
+    return gam
+
+def retrouve_seuil(v,n):
+    t_phi, t_p = tab_phi(n), proba_exp(v,n) #t_phi = abscisses, t_p = ordonnées
+    index = np.searchsorted(t_p,t_p[-1]) #dichotomie, O(log n)
+    return t_phi[index] #a
+
+def retrouve_tot_seuil(v,n,k0=np.array([[]]), g0=None, titre="", t=0):#n precision sur tab_phi
     #k et g = seuil
     t_phi, t_p = tab_phi(n), proba_exp(v,n) #t_phi = abscisses, t_p = ordonnées
     index = np.searchsorted(t_p,t_p[-1]) #dichotomie, O(log n)  
     a = t_phi[index]
-    k_exp = mp.retrouver_K0(gamma_emp(a,v))
+    print(a)
+    k_exp = mp.renormalise2(mp.retrouver_K0(gamma_emp(a,v,n)))
     ordonnee = t_p
     abscisse = t_phi
     lin = np.linspace(abscisse[0],abscisse[-1],1000)
@@ -113,51 +190,6 @@ def retrouve_tot_seuil(v,n,k0=np.array([[]]), g0=None, titre="", t=0):
     else:
         mp.printimage([fftshift(k_exp)],
               ["k_exp"])
-    
-    
-def F_prime(a,p):
-    a,p = np.float64(a),np.float64(p)
-    return 1/(2*np.pi*np.sqrt(1-p**2))*np.exp(-a**2/(1+p))
 
-def F(a,p):
-    def g(p):
-        return F_prime(a,p)
-    return integrate.quad(g, -1, p)[0] + phi(np.abs(a)) - phi(a)
-    
-#cf retour d'erreur si on sort de la plage
-def F_inv(a,p):
-    def g(x):
-        return F(a,x)
-    inverse_F = brentq(lambda x: g(x) - p, -1, 1)
-    return inverse_F
-    
-def gamma_emp(a,v):
-    M,N = v.shape
-    k,l = 0,0
-    c1,c2 = v[0][0], v[0][0]
-    while (k < M) and c1==c2:
-        while l < N and c1==c2:
-            if v[k,l] < c1:
-                c1 = v[k,l]
-            if v[k,l] > c1:
-                c2 = v[k,l]
-            l +=1
-        k+=1
-        l=0
-    if c1==c2:
-        raise Exception("Constant image")
-    else:
-        v = (v-c1)/(c2-c1)
-    aut = mp.autocor(v)/(M*N)
-    gam = np.zeros((M,N))
-    for i in range(M):
-        for j in range(N):
-            gam[i,j] = F_inv(a,aut[i,j])
-    return gam
-
-def retrouve_seuil(v,n):
-    t_phi, t_p = tab_phi(n), proba_exp(v,n) #t_phi = abscisses, t_p = ordonnées
-    index = np.searchsorted(t_p,t_p[-1]) #dichotomie, O(log n)
-    return t_phi[index] #a
 
     

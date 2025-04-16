@@ -67,7 +67,7 @@ rtg.retrouve_tot(x3(data_loaded["u_conv_gce"]),5000,data_loaded["k_cer_grand_con
 '''
 
 def seuil(x):
-    if x>2.5:
+    if x>0:
         return(1/2)
     return(-1/2)
 seuil_vect = np.vectorize(seuil)
@@ -88,6 +88,12 @@ rtg.retrouve_tot(seuil_vect(data_loaded["u_conv_gce"]),5000,data_loaded["k_cer_g
                  seuil_vect,"seuil",data_loaded["u_conv_gce"],1)
 '''
 
+#rtg.retrouve_tot_seuil(seuil_vect(data_loaded["u_conv_pce"]),5000)
+
+#mp.printimage([fftshift(rtg.gamma_emp(0,seuil_vect(data_loaded["u_conv_pce"]),5000)),
+#               fftshift(mp.autocor(data_loaded["u_conv_pce"])/2048**2)],["gammaexp","gamma"])
+
+
 #arctan
 '''
 rtg.plot_g_exp(rtg.proba_exp(np.arctan(data_loaded["u_conv_tpce"]),5000),rtg.tab_phi(5000),np.arctan,"g(x)=arctan(x)")
@@ -104,6 +110,35 @@ rtg.retrouve_tot(np.arctan(data_loaded["u_conv_pce"]),5000,data_loaded["k_cer_pe
 
 rtg.retrouve_tot(np.arctan(data_loaded["u_conv_gce"]),5000,data_loaded["k_cer_grand_conv_norme"],
                  np.arctan,"g(x)=actan(x)",data_loaded["u_conv_gce"],1)
+'''
+
+def sigmoide(a,y,x):
+    return(1/(1+np.exp((-1)*a*(x-y))))
+
+def sigmoide1(x):
+    return(sigmoide(1,0,x))
+
+def sigmoide2(x):
+    return(sigmoide(1,2,x))
+
+def sigmoide3(x):
+    return(sigmoide(3,2,x))
+    
+'''
+rtg.plot_g_exp(rtg.proba_exp(sigmoide1(data_loaded["u_conv_tpce"]),5000),rtg.tab_phi(5000),sigmoide1,"sigmoide 1 0")
+
+rtg.plot_g_exp(rtg.proba_exp(sigmoide2(data_loaded["u_conv_tpce"]),5000),rtg.tab_phi(5000),sigmoide2,"sigmoide 1 2")
+
+rtg.plot_g_exp(rtg.proba_exp(sigmoide3(data_loaded["u_conv_tpce"]),5000),rtg.tab_phi(5000),sigmoide3,"sigmoide 3 2")
+
+rtg.retrouve_tot(sigmoide1(data_loaded["u_conv_tpce"]),5000,data_loaded["k_cer_tres_petit_conv_norme"],
+                 sigmoide1,"sigmoide 1 0",data_loaded["u_conv_tpce"],1)
+
+rtg.retrouve_tot(sigmoide2(data_loaded["u_conv_pce"]),5000,data_loaded["k_cer_petit_conv_norme"],
+                 sigmoide2,"sigmoide 1 2",data_loaded["u_conv_pce"],1)
+
+rtg.retrouve_tot(sigmoide3(data_loaded["u_conv_tpce"]),5000,data_loaded["k_cer_tres_petit_conv_norme"],
+                 sigmoide3,"sigmoide 3 2",data_loaded["u_conv_tpce"],1)
 '''
 
 '''

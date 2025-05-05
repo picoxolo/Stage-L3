@@ -14,8 +14,7 @@ for i in range(50):
         k_carre_petit[1024+i,1024-j] = 1
         k_carre_petit[1024-i,1024+j] = 1
     
-k_carre_petit_norme = mp.renormalise2(k_carre_petit)
-k_carre_petit_conv_norme = mp.renormalise2(mp.convol (k_carre_petit_norme, k_carre_petit_norme))
+k_carre_petit_conv_norme = mp.renormalise2(mp.convol (k_carre_petit, k_carre_petit))
 u_conv_pca = mp.convol(k_carre_petit_conv_norme,wh)
 k_exp_pca, fft_k_exp_pca, gamma_exp_pca = mp.retrouver(u_conv_pca)
 k_exp_pca_2 = mp.renormalise2(k_exp_pca) #meilleur seuil 0.00085 ?
@@ -41,8 +40,7 @@ for i in range(200):
         k_carre_grand[1024+i,1024-j] = 1
         k_carre_grand[1024-i,1024+j] = 1
     
-k_carre_grand_norme = mp.renormalise2(k_carre_grand)
-k_carre_grand_conv_norme = mp.renormalise2(mp.convol (k_carre_grand_norme, k_carre_grand_norme))
+k_carre_grand_conv_norme = mp.renormalise2(mp.convol (k_carre_grand, k_carre_grand))
 u_conv_gca = mp.convol(k_carre_grand_conv_norme,wh)
 k_exp_gca, fft_k_exp_gca, gamma_exp_gca = mp.retrouver(u_conv_gca)
 k_exp_gca_2 = mp.renormalise2(k_exp_gca) #meilleur seuil 2.5 * 10^-5 ?

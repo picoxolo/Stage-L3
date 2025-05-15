@@ -14,7 +14,7 @@ def printimage(img, title): #img et title sont des listes de meme longueur
     plt.show()
 
 def autocor(I):
-    return np.real(ifft2(np.abs(fft2(I)**2)))
+    return np.real(ifft2(np.abs(fft2(I))**2))
 
 def convol(f,g):
     return np.real(ifft2(fft2(f)*fft2(g)))
@@ -23,17 +23,23 @@ def k0(C):
     return np.real(ifft2(np.sqrt(np.abs(fft2(C)))))
 
 def retrouver(u):  
-    n = len(u)
     N,M = u.shape
     gamma = autocor(u)/(N*M)
     fft = np.sqrt(np.abs(fft2(gamma)))
     k0 = np.real(ifft2(fft))
     return k0, fftshift(fft), gamma
 
+def retrouverv2(u):
+    N,M = u.shape
+    fft =np.sqrt(np.abs(fft2(u))**2/(N*M)) 
+    k0 = np.real(ifft2(fft)) * 2/np.sqrt(np.pi)
+    return k0, fftshift(fft)
+
 def retrouver_K0(gamma):
+    N,M= gamma.shape
     fft = np.sqrt(np.abs(fft2(gamma)))
-    K_0 = np.real(ifft2(fft))
-    return K_0
+    K0 = np.real(ifft2(fft))
+    return K0
 
 def affiche(u):
     plt.subplot(2,2,1)
@@ -58,6 +64,9 @@ def norme2(k):
             norme += k[i,j]**2
     return(norme**(1/2))
 
+def ecart_norme2(k0,k):
+    return(norme2(k0-k))
+
 def norme1(k):
     return(np.sum(np.abs(k)))
 
@@ -65,11 +74,9 @@ def renormalise2(k):
     norme = norme2(k)
     return(k/norme)
 
-def ecart_norme2 (k0,k):
-    return(norme2(k0-k))
-
-def ecart_norme1 (k0,k):
-    return(norme1(k0-k))
+def renormalise1(k):
+    norme = norme1(k)
+    return(k/norme)
 
 def cut(k,seuil):
     M,N = np.shape(k)
@@ -79,8 +86,6 @@ def cut(k,seuil):
                 k[i,j] = 0
     return(k)
 
-
-
 def variance(exp,esp):
     M,N=np.shape(exp)
     v=0
@@ -89,7 +94,7 @@ def variance(exp,esp):
             v += (exp[i,j] - esp[i,j])**2
     return v/(N*M)
 
-
+'''
 def ecart_exp(gamma_ther, gamma_emp):
     M,N = gamma_emp.shape
     ecart_ther = np.sqrt(2/(M*N))*norme2(gamma_ther)

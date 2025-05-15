@@ -14,7 +14,7 @@ with open("data.pkl", "rb") as f:
 def proba_exp(U,n): #n:nombre de points
     sorted_array = np.sort(U.flatten())
     N = len(sorted_array)
-    liste = [] #liste[0] = the upper value of the first (1/n+1) % ; liste[t]=the upper value of the first t*1/(n+1) %
+    liste = [] #liste[0] = the upper value of the first (100/n+1) % ; liste[t]=the upper value of the first t*100/(n+1) %
     for i in range(n):
         liste.append(sorted_array[int(np.floor(i/(n+1)*N))])
     return (np.array(liste))
@@ -30,13 +30,15 @@ def tab_phi(n):
     n désigne le nombre de points sur lequel on estime phi
     on retourne T tq T[i] = phi^-1(i*99/n%)
     """
-    points = [(i *  1/ (n+1))  for i in range(1, n + 1)]  # From 0% to 99%
+    points = [(i *  1/ (n+1))  for i in range(1, n + 1)]  # From 1% to 99%
     T = []
     for target in points:
     # Define the function for which we look for roots: phi(x) - target = 0
         inverse_x = brentq(lambda x: phi(x) - target, -10, 10)
         T.append(inverse_x)
     return T 
+
+tab_phi(10000)
 
 def plot_g_exp (tab_p,tab_phi,g,titre):
     n = len(tab_p)
@@ -104,7 +106,7 @@ def F(a,p):
         return(phi(np.abs(a)) - phi(a))
     else:
         return integrate.quad(g, -1, p)[0] + phi(np.abs(a)) - phi(a)
-    
+
 
 #cf retour d'erreur si on sort de la plage
 def F_inv(a,p):
@@ -118,23 +120,35 @@ def F_inv_main(a,p,n):
     index = find_closest_index(f,p)
     return(-1+index/n)
 
-def plot_F_F_inv(a,n):
+def plot_F_F_inv(n):
+    a = [0.0, 0.25, 0.50, 0.75, 1]
+    lis_f = []
     abscisse = np.array([(-1+i/n) for i in range(2*n+1)])
-    def g(x):
-        return F(a,x)
-    g_vect = np.vectorize(g)
-    f = g_vect(abscisse)
-    plt.plot(abscisse,f)
-    plt.title(F)
-    f_inv = []
-    j=0
-    for i in range(2*n+1):
-        while (-1+i/n)>=f[j] and j<2*n:
-            j+=1
-        f_inv.append(-1+j/n)
-    plt.plot(abscisse,f_inv)
+    for i in a:
+        def g(x):
+            return F(i,x)
+        g_vect = np.vectorize(g)
+        plt.plot(g_vect(abscisse),abscisse)
     plt.title(F_inv)
     plt.show()
+    
+def plot_H_H_invv(n):
+    a = [0.0, 0.25, 0.50, 0.75, 1]
+    lis_h = []
+    abscisse = np.array([(-1+i/n) for i in range(2*n+1)])
+    plt.figure(figsize=(10, 6))  # Définir la taille de la figure
+    for i in a:
+        def g(x):
+            return F(i,x)
+        g_vect = np.vectorize(g)
+        plt.plot(g_vect(abscisse), abscisse, label=f'a = {i}')  # Ajouter un label pour chaque courbe
+    plt.title(r"Graphes de $H_{a}^{-1}$")  # Mettre le titre entre guillemets
+    plt.xlabel("x")  # Ajouter un label pour l'axe x
+    plt.ylabel(r"$H^{-1}(x)$")  # Ajouter un label pour l'axe y
+    plt.legend(loc="lower right", prop={"size" : 15})  # Afficher la légende
+    plt.show()
+
+#plot_H_H_invv(1000)
     
     
 def gamma_emp(a,v,n): #n precision pour f^-1
@@ -153,7 +167,7 @@ def gamma_emp(a,v,n): #n precision pour f^-1
     if c1==c2:
         raise Exception("Constant image")
     else:
-        v = (v-c1)/(c2-c1)
+        v = (v-c1)/(c2-c1)  #on obtient une image avec des 0 et des 1
     aut = mp.autocor(v)/(M*N)
     gam = np.zeros((M,N))
     f = [F(a,-1 + i/n) for i in range(2*n+1)]
@@ -163,6 +177,7 @@ def gamma_emp(a,v,n): #n precision pour f^-1
             gam[i,j] = -1+index/n
     return gam
 
+
 def retrouve_seuil(v,n):
     t_phi, t_p = tab_phi(n), proba_exp(v,n) #t_phi = abscisses, t_p = ordonnées
     index = np.searchsorted(t_p,t_p[-1]) #dichotomie, O(log n)
@@ -170,6 +185,7 @@ def retrouve_seuil(v,n):
 
 def retrouve_tot_seuil(v,n,k0=np.array([[]]), g0=None, titre="", t=0):#n precision sur tab_phi
     #k et g = seuil
+    M,N = np.shape(v)
     t_phi, t_p = tab_phi(n), proba_exp(v,n) #t_phi = abscisses, t_p = ordonnées
     index = np.searchsorted(t_p,t_p[-1]) #dichotomie, O(log n)  
     a = t_phi[index]
@@ -190,6 +206,5 @@ def retrouve_tot_seuil(v,n,k0=np.array([[]]), g0=None, titre="", t=0):#n precisi
     else:
         mp.printimage([fftshift(k_exp)],
               ["k_exp"])
-
 
     

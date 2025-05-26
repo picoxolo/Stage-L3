@@ -77,20 +77,7 @@ def filter_bis(x,k,σ=3): #k noyau fréquentiel
     y = ifft2(Y).real                       # go back to the spatial domain
     return y
 
-def seuil(x):
-    if x>0:
-        return(1)
-    return(0)
-seuil_vect = np.vectorize(seuil)
-
-def ReLu(x,a,b):
-    def temp(x):
-        if x > a:
-            return b*(x-a)
-        return (0)
-    return np.vectorize(temp)
-
-def seuil_pct(u,p):
+def ReLu(u,p):
     M,N = u.shape
     L = np.sort(u.flatten())
     s = L[int(np.floor(p*M*N))]
@@ -100,11 +87,19 @@ def seuil_pct(u,p):
             if u[i,j] >= s:
                 v[i,j] = u[i,j]
     return v
+
+def seuil_pct(u,p):
+    M,N = u.shape
+    L = np.sort(u.flatten())
+    s = L[int(np.floor(p*M*N))]
+    v  = np.zeros((M,N))
+    for i in range(M):
+        for j in range(N):
+            if u[i,j] >= s:
+                v[i,j] =1
+    return v
             
 
-
-
-#%%
 
 W = mp.whitenoise(800,800,1)
 u = filter(W,"gauss", 10)

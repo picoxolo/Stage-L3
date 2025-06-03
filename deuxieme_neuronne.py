@@ -75,7 +75,7 @@ def noyau_gaussien_prime(sigma):
     x = np.zeros((M, N))
     for i in range(M):
         for j in range(N):
-            x[i, j] = i**2 + j**2
+            x[i, j] = (i-50)**2 + (j-50)**2
     return k * x
 
 def noyau_gaussien_prime_cached(sigma):
@@ -160,10 +160,10 @@ def grad_e(Z,k,delta):
 def descente(Z,k,delta,eps):
     for i in range(10000):
         grad = grad_e(Z,k,delta)
-        k = k - grad * eps
-    return(mp.renormalise2(k))
+        k = k - mp.renormalise2(grad) * eps
+    return(k)
 
-#mp.printimage([descente(mp.convol(k_3,exg.seuil_vect(mp.whitenoise(100,100,1))),k_2,0.000001,1)],["k_exp"])
+#mp.printimage([descente(mp.convol(k_3,exg.seuil_vect(mp.whitenoise(100,100,1))),k,0.000001,0.1)],["k_exp"])
 
 def grad_e_sigma(Z,sigma,delta):
     M,N = np.shape(Z)
@@ -184,7 +184,7 @@ def descente_sigma(Z,sigma,delta,eps):
         if grad < 0:
             sigma = sigma + eps
         else:
-            sigma = max(sigma - eps, 0.5)
+            sigma = max(sigma - eps, 1)
     return(sigma)
 
 #print(descente_sigma(mp.convol(noyau_gaussien(5),exg.seuil_vect(mp.whitenoise(101,101,1))),5,0.001,0.1)) 
@@ -201,20 +201,22 @@ def plot_energie_sigma(Z, sigma_range, delta):
     plt.title("Energy vs Sigma")
     plt.show()
 
-#plot_energie_sigma(mp.convol(noyau_gaussien(5),exg.seuil_vectv2(mp.whitenoise(101,101,1))), np.linspace(0.1, 5.4, 100), 0.001)
+wh = mp.whitenoise(101, 101, 1)
 
-def recherche_min (Z, sigma_range, delta):
+#plot_energie_sigma(mp.convol(noyau_gaussien(7),exg.seuil_vectv2(mp.convol(wh,mp.renormalise2(noyau_gaussien(2))))), np.linspace(0.1, 4.35, 100), 0.00000000001)
+
+def recherche_min (Z, sigma_range, delta,eps):
     L = []
     for sigma in sigma_range:
-        sigma_opt = descente_sigma(Z, sigma, delta, 0.1)
-        k = noyau_gaussien_cached(sigma)
+        sigma_opt = descente_sigma(Z, sigma, delta, eps)
+        k = noyau_gaussien_cached(sigma_opt)
         energy = energie(Z, k, delta)
         L.append((energy, sigma_opt))
     L.sort(key=lambda x: x[0])
     print("Minimum energy:", L[0][0], "at sigma:", L[0][1])
     return(L)
 
-print(recherche_min(mp.convol(noyau_gaussien(7),exg.seuil_vectv2(mp.whitenoise(101,101,1))), np.linspace(0.1, 10, 10), 0.001))
+print(recherche_min(mp.convol(noyau_gaussien(7.5),exg.seuil_vectv2(mp.convol(wh,mp.renormalise2(noyau_gaussien(2))))), np.linspace(0.5, 10, 10), 0.00000000001, 0.1))
     
     
     

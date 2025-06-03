@@ -153,6 +153,27 @@ def descente(Z,k,delta,eps):
         k = k - grad * eps
     return(mp.renormalise2(k))
 
+def grad_e_sigma(Z,sigma,delta):
+    M,N = np.shape(Z)
+    k = noyau_gaussien_cached(sigma)
+    k_prime = noyau_gaussien_prime_cached(sigma)
+    result = 0
+    R = 2*(ifft2(fft2(Z)/(fft2(k)+delta)) - (ifft2(fft2(Z)/(fft2(k)+delta)))**2)
+    R = R * (2*ifft2(fft2(Z)/(fft2(k)+delta))- 1)
+    R = R * (1/sigma**3 * ifft2(fft2(Z)*fft2(k_prime)/(fft2(k)**2+delta))- 2/sigma * ifft2(fft2(Z)/(fft2(k)+delta)))
+    for i in range(M):
+        for j in range(N):
+            result += R[i,j] 
+    return(np.real(result))
+
+def descente_sigma(Z,sigma,delta,eps):
+    for i in range(1000):
+        grad = grad_e_sigma(Z,sigma,delta)
+        sigma = sigma - grad * eps
+    return(sigma)
+
+print(descente_sigma(mp.convol(noyau_gaussien(1),exg.seuil_vect(mp.whitenoise(101,101,1))),5,0.0000000001,0.0000000000000000000000000000000000000001))
+
 mp.printimage([descente(mp.convol(k_3,exg.seuil_vect(mp.whitenoise(100,100,1))),k_ini,0.00000000000000001,1)],["k_exp"])
     
     

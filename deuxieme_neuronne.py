@@ -63,7 +63,7 @@ def noyau_gaussien(sigma):
     k = np.zeros((101,101))
     for i in range(101):
         for j in range(101):
-            k[i,j] = 1/np.sqrt(2*np.pi*sigma**2) * np.exp(-((i-5)**2+(j-5)**2)/(2*sigma**2))
+            k[i,j] = 1/(2*np.pi*sigma**2) * np.exp(-((i-50)**2+(j-50)**2)/(2*sigma**2))
     return(k)
 
 def noyau_gaussien_cached(sigma):
@@ -80,8 +80,6 @@ def noyau_gaussien_prime(sigma):
 
 def noyau_gaussien_prime_cached(sigma):
     return noyau_gaussien_prime(sigma)
-
-#print(mp.norme2(noyau_gaussien(0.40)) )
 
 def fft_lamda_droite_sigma (sigma_1,sigma_2,a):
     return((np.abs(fft2(noyau_gaussien_cached(sigma_2)))** 2) *  fft2(rtg.F_vect(a,mp.autocor(noyau_gaussien_cached(sigma_1)))) - 1)
@@ -165,6 +163,8 @@ def descente(Z,k,delta,eps):
         k = k - grad * eps
     return(mp.renormalise2(k))
 
+#mp.printimage([descente(mp.convol(k_3,exg.seuil_vect(mp.whitenoise(100,100,1))),k_2,0.000001,1)],["k_exp"])
+
 def grad_e_sigma(Z,sigma,delta):
     M,N = np.shape(Z)
     k = noyau_gaussien_cached(sigma)
@@ -179,14 +179,42 @@ def grad_e_sigma(Z,sigma,delta):
     return(np.real(result))
 
 def descente_sigma(Z,sigma,delta,eps):
-    for i in range(1000):
+    for i in range(100):
         grad = grad_e_sigma(Z,sigma,delta)
-        sigma = sigma - grad * eps
+        if grad < 0:
+            sigma = sigma + eps
+        else:
+            sigma = max(sigma - eps, 0.5)
     return(sigma)
 
-print(descente_sigma(mp.convol(noyau_gaussien(1),exg.seuil_vect(mp.whitenoise(101,101,1))),5,0.0000000001,0.0000000000000000000000000000000000000001))
+#print(descente_sigma(mp.convol(noyau_gaussien(5),exg.seuil_vect(mp.whitenoise(101,101,1))),5,0.001,0.1)) 
 
-mp.printimage([descente(mp.convol(k_3,exg.seuil_vect(mp.whitenoise(100,100,1))),k_ini,0.00000000000000001,1)],["k_exp"])
+def plot_energie_sigma(Z, sigma_range, delta):
+    energies = []
+    for sigma in sigma_range:
+        k = noyau_gaussien_cached(sigma)
+        energy = energie(Z, k, delta)
+        energies.append(energy)
+    plt.plot(sigma_range, energies)
+    plt.xlabel("Sigma")
+    plt.ylabel("Energy")
+    plt.title("Energy vs Sigma")
+    plt.show()
+
+#plot_energie_sigma(mp.convol(noyau_gaussien(5),exg.seuil_vectv2(mp.whitenoise(101,101,1))), np.linspace(0.1, 5.4, 100), 0.001)
+
+def recherche_min (Z, sigma_range, delta):
+    L = []
+    for sigma in sigma_range:
+        sigma_opt = descente_sigma(Z, sigma, delta, 0.1)
+        k = noyau_gaussien_cached(sigma)
+        energy = energie(Z, k, delta)
+        L.append((energy, sigma_opt))
+    L.sort(key=lambda x: x[0])
+    print("Minimum energy:", L[0][0], "at sigma:", L[0][1])
+    return(L)
+
+print(recherche_min(mp.convol(noyau_gaussien(7),exg.seuil_vectv2(mp.whitenoise(101,101,1))), np.linspace(0.1, 10, 10), 0.001))
     
     
     

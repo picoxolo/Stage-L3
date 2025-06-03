@@ -69,6 +69,18 @@ def noyau_gaussien(sigma):
 def noyau_gaussien_cached(sigma):
     return noyau_gaussien(sigma)
 
+def noyau_gaussien_prime(sigma):
+    k = noyau_gaussien_cached(sigma)
+    M, N = k.shape
+    x = np.zeros((M, N))
+    for i in range(M):
+        for j in range(N):
+            x[i, j] = i**2 + j**2
+    return k * x
+
+def noyau_gaussien_prime_cached(sigma):
+    return noyau_gaussien_prime(sigma)
+
 #print(mp.norme2(noyau_gaussien(0.40)) )
 
 def fft_lamda_droite_sigma (sigma_1,sigma_2,a):

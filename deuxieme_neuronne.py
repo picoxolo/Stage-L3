@@ -217,6 +217,18 @@ def recherche_min (Z, sigma_range, delta,eps):
     return(L)
 
 print(recherche_min(mp.convol(noyau_gaussien(7.5),exg.seuil_vectv2(mp.convol(wh,mp.renormalise2(noyau_gaussien(2))))), np.linspace(0.5, 10, 10), 0.00000000001, 0.1))
-    
-    
+
+def seuil_2(Y, T):
+    M,N = np.shape(Y)
+    n = np.shape(T)[0]
+    P = 1/(M*N)*np.sum(Y)
+    i = rtg.find_closest_index(-T, -P)
+    return (-1 + 2*i/(n+1))
+
+def retrouve_k2(Y):
+    M,N = np.shape(Y)
+    P = 1/(M*N)*np.sum(Y)
+    cov_emp = 1/(M*N) * mp.autocor(Y) - P**2
+    V = fft2(cov_emp)[0,0]
+    return np.real(ifft2(np.sqrt(np.abs(fft2(cov_emp)/V))))
     

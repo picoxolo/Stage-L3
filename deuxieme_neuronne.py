@@ -231,4 +231,33 @@ def retrouve_k2(Y):
     cov_emp = 1/(M*N) * mp.autocor(Y) - P**2
     V = fft2(cov_emp)[0,0]
     return np.real(ifft2(np.sqrt(np.abs(fft2(cov_emp)/V))))
-    
+
+def esp(a,b):
+    return b*b*(np.exp(-a*a/2)/np.sqrt(2*np.pi) - (1 - rtg.phi(a)))
+esp = np.vectorize(esp)
+
+def affiche():
+    A = np.linspace(-1,1,100)
+    B = np.linspace(-5,5,100)
+    X,Y = np.meshgrid(A,B)
+    Z = esp(X,Y)
+    fig = plt.figure()
+    ax = plt.axes(projection='3d')
+    ax.view_init(40, -10)
+    ax.plot_surface(X, Y, Z)
+    plt.show()
+'''
+A = np.linspace(-1,1,100)
+B = np.linspace(0,10,100)
+#X,Y = np.meshgrid(A,B)
+Z = np.zeros((100,100))
+for i in range(100):
+    for j in range(100):
+        Z[i,j] = esp(A[i], B[j])
+ 
+plt.contourf(A,B, Z.T, levels = 50)
+plt.xlabel("a")
+plt.ylabel("b")
+plt.colorbar(label="esp")
+plt.show()
+'''

@@ -246,18 +246,39 @@ def affiche():
     ax.view_init(40, -10)
     ax.plot_surface(X, Y, Z)
     plt.show()
-'''
-A = np.linspace(-1,1,100)
-B = np.linspace(0,10,100)
-#X,Y = np.meshgrid(A,B)
-Z = np.zeros((100,100))
-for i in range(100):
-    for j in range(100):
-        Z[i,j] = esp(A[i], B[j])
- 
-plt.contourf(A,B, Z.T, levels = 50)
+
+import matplotlib.pyplot as plt
+from scipy.stats import norm
+
+# Constante cible
+c = 2
+
+# Fonction numerateur et dénominateur
+def denom(a):
+    return np.exp(-a**2 / 2) / np.sqrt(2 * np.pi) - a * (1 - rtg.phi(a))
+
+# Valeurs de a (éviter les zéros de dénominateur)
+a_vals = np.linspace(-3, 3, 500)
+b_vals = []
+
+for a in a_vals:
+    d = denom(a)
+    if abs(d) > 1e-6:  # éviter la division par presque zéro
+        b = c / d
+        b_vals.append(b)
+    else:
+        b_vals.append(np.nan)  # ignorer les points problématiques
+
+# Tracer
+plt.figure(figsize=(8, 5))
+plt.plot(a_vals, b_vals, label=f"esp(a, b) = {c}")
 plt.xlabel("a")
 plt.ylabel("b")
-plt.colorbar(label="esp")
+plt.title("Courbe des couples (a, b) tels que esp(a, b) = c")
+plt.grid(True)
+plt.legend()
+plt.axhline(0, color="gray", linestyle="--")
+plt.axvline(0, color="gray", linestyle="--")
 plt.show()
-'''
+
+

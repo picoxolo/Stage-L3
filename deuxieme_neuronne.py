@@ -64,6 +64,7 @@ def noyau_gaussien(sigma):
     for i in range(101):
         for j in range(101):
             k[i,j] = 1/(2*np.pi*sigma**2) * np.exp(-((i-50)**2+(j-50)**2)/(2*sigma**2))
+    k = k / np.abs(np.sum(k))  # Normalisation
     return(k)
 
 def noyau_gaussien_cached(sigma):
@@ -128,16 +129,23 @@ def opti_sigma(Z, a):
 def energie(Z,k,delta):
     return(mp.norme2_2(ifft2(fft2(Z)/(fft2(k)+delta)) - (ifft2(fft2(Z)/(fft2(k)+delta)))**2))
 
-k = np.zeros((100,100))
+def energie_chapeau(Z,fftk,delta):
+    return(mp.norme2_2(ifft2(fft2(Z)/(fftk+delta)) - (ifft2(fft2(Z)/(fftk+delta)))**2))
+
+def energie_v2(Z,k,B,lamb,mu):
+    M,N = np.shape(Z)
+    return(mp.norme2_2(Z - mp.convol(k, B)) + lamb * mp.norme2_2(B**2 - B) + mu * mp.norme2_2(k))
+
+k = np.zeros((101,101))
 k[0,0] = 1
 
-k_ini = np.ones((100,100))
+k_ini = np.ones((101,101))
 
-k_2 = np.zeros((100,100))
+k_2 = np.zeros((101,101))
 k_2[0,0] = 1
 k_2[0,1] = 1
 
-k_3 = np.zeros((100,100))
+k_3 = np.zeros((101,101))
 k_3[0,0] = 1
 k_3[0,1] = 1
 k_3[0,2] = 1
@@ -149,6 +157,8 @@ k_3[2,0] = 1
 k_3[2,2] = 1
 #print(energie(exg.seuil_vect(mp.whitenoise(100,100,1)),k,0.000001))
 
+wh = mp.whitenoise(101, 101, 1)
+
 def grad_e(Z,k,delta):
     M,N = np.shape(Z)
     return(2/(M*N) * 
@@ -157,13 +167,59 @@ def grad_e(Z,k,delta):
 
 #mp.printimage([grad_e(exg.seuil_vect(mp.whitenoise(100,100,1)),k_ini,0.000001)],["grad"])
 
+def oppose(I):
+    M,N = np.shape(I)
+    result = np.zeros((M,N))
+    for i in range(M):
+        for j in range(N):
+            result[i,j] = I[(-i)%M,(-j)%N]
+    return(result)
+
+def grad_e_chapeau(Z,fftk,delta):
+    M,N = np.shape(Z)
+    dirac = np.zeros((M,N))
+    dirac[0,0] = 1
+    return oppose(2*(M*N) * fft2(Z)/(fftk+delta)**2 *
+        mp.convol(fft2(Z)/(fftk+delta) - M*N*mp.convol((fft2(Z)/(fftk+delta)),fft2(Z)/(fftk+delta)),(2*fft2(Z)/(fftk+delta))- dirac/(M*N)))
+
+def grad_e_k(Z,k,B,mu):
+    return 2*mp.convol((mp.convol(k, B) - Z) , oppose(B)) + 2 * mu * k
+
+#mp.printimage([grad_e_k(exg.seuil_vect(wh),k,exg.seuil_vect(wh),0)],["grad_k"])
+
+def grad_e_B(Z,k,B,lamb):
+    return 2 * mp.convol((mp.convol(k, B) - Z),oppose(k)) + 2 * lamb * (B**2 - B)*(2*B - 1)
+
+#mp.printimage([grad_e_B(exg.seuil_vect(wh),k,exg.seuil_vect(wh),0)],["grad_B"])
+
 def descente(Z,k,delta,eps):
-    for i in range(10000):
+    for i in range(100000):
         grad = grad_e(Z,k,delta)
         k = k - mp.renormalise2(grad) * eps
     return(k)
 
 #mp.printimage([descente(mp.convol(k_3,exg.seuil_vect(mp.whitenoise(100,100,1))),k,0.000001,0.1)],["k_exp"])
+
+def descente_chapeau(Z,fftk,delta,eps):
+    for i in range(1000):
+        grad = grad_e_chapeau(Z,fftk,delta)
+        fftk = fftk - mp.renormalise2(grad) * eps
+        fftk[0,0] = 1   # Assure que le noyau reste normalisé
+    return(fftk)
+
+#mp.printimage([fftshift(np.real(ifft2(descente_chapeau(exg.seuil_vect(mp.whitenoise(101,101,1)),fft2(k_ini),0.000001,0.1)))),fftshift(np.real(ifft2(fft2(k))))],["k_exp","k"])
+
+
+def descente_v2(Z,k,B,lamb,mu,eps):
+    for i in range(1000):
+        grad_k = grad_e_k(Z,k,B,mu)
+        k = k - mp.renormalise2(grad_k) * eps
+        grad_B = grad_e_B(Z,k,B,lamb)
+        B = B - mp.renormalise2(grad_B) * eps
+    return(k,B)
+
+#k,B = descente_v2(mp.convol(k_2,exg.seuil_vect(wh)),k,mp.convol(k_2,exg.seuil_vect(wh)),1,1,0.1)
+#mp.printimage([k,B,exg.seuil_vect(wh)],["k_exp","B_exp","B"])
 
 def grad_e_sigma(Z,sigma,delta):
     M,N = np.shape(Z)
@@ -184,7 +240,7 @@ def descente_sigma(Z,sigma,delta,eps):
         if grad < 0:
             sigma = sigma + eps
         else:
-            sigma = max(sigma - eps, 1)
+            sigma = max(sigma - eps, 0.01)
     return(sigma)
 
 #print(descente_sigma(mp.convol(noyau_gaussien(5),exg.seuil_vect(mp.whitenoise(101,101,1))),5,0.001,0.1)) 
@@ -201,9 +257,8 @@ def plot_energie_sigma(Z, sigma_range, delta):
     plt.title("Energy vs Sigma")
     plt.show()
 
-wh = mp.whitenoise(101, 101, 1)
 
-#plot_energie_sigma(mp.convol(noyau_gaussien(7),exg.seuil_vectv2(mp.convol(wh,mp.renormalise2(noyau_gaussien(2))))), np.linspace(0.1, 4.35, 100), 0.00000000001)
+#plot_energie_sigma(mp.convol(noyau_gaussien(3)/ np.abs(np.sum(noyau_gaussien(3))),exg.seuil_vectv2(mp.convol(wh,mp.renormalise2(noyau_gaussien(2))))), np.linspace(0.1, 5.05, 100), 0.00000000001)
 
 def recherche_min (Z, sigma_range, delta,eps):
     L = []
@@ -216,7 +271,7 @@ def recherche_min (Z, sigma_range, delta,eps):
     print("Minimum energy:", L[0][0], "at sigma:", L[0][1])
     return(L)
 
-print(recherche_min(mp.convol(noyau_gaussien(7.5),exg.seuil_vectv2(mp.convol(wh,mp.renormalise2(noyau_gaussien(2))))), np.linspace(0.5, 10, 10), 0.00000000001, 0.1))
+#print(recherche_min(mp.convol(noyau_gaussien(5)/ np.abs(np.sum(noyau_gaussien(5))),exg.seuil_vectv2(mp.convol(wh,mp.renormalise2(noyau_gaussien(8))))), np.linspace(0.5, 10, 10), 0.00000000001, 0.1))
 
 def seuil_2(Y, T):
     M,N = np.shape(Y)
@@ -233,19 +288,22 @@ def retrouve_k2(Y):
     return np.real(ifft2(np.sqrt(np.abs(fft2(cov_emp)/V))))
 
 def esp(a,b):
-    return b*b*(np.exp(-a*a/2)/np.sqrt(2*np.pi) - (1 - rtg.phi(a)))
-esp = np.vectorize(esp)
+    return b*(np.exp(-a*a/2)/np.sqrt(2*np.pi) - a*(1 - rtg.phi(a)))
+esp_vect = np.vectorize(esp)
 
 def affiche():
-    A = np.linspace(-1,1,100)
-    B = np.linspace(-5,5,100)
+    A = np.linspace(-10,3,100)
+    B = np.linspace(0,10,100)
     X,Y = np.meshgrid(A,B)
-    Z = esp(X,Y)
+    Z = esp_vect(X,Y)
     fig = plt.figure()
     ax = plt.axes(projection='3d')
     ax.view_init(40, -10)
     ax.plot_surface(X, Y, Z)
     plt.show()
+    
+#affiche()
+
 
 import matplotlib.pyplot as plt
 from scipy.stats import norm

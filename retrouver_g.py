@@ -207,4 +207,20 @@ def retrouve_tot_seuil(v,n,k0=np.array([[]]), g0=None, titre="", t=0):#n precisi
         mp.printimage([fftshift(k_exp)],
               ["k_exp"])
 
+def retrouve_Relu(Y,T):
+    #T = rtg.phi_b(n)
+    M,N = np.shape(Y)
+    n = np.shape(T)[0]
+    tab = np.sort(Y.flatten())
+    i = bisect.bisect_right(tab, 0)
+    if i == len(tab):
+        i = i - 1
+    P = i/(M*N)
+    a = T[int(np.floor((n+1)*P))]
+    l = M*N - i
+    c = tab[i+l//2]
+    p = (i/(M*N)+1)/2
+    b = (T[int(np.floor((n+1)*p))]-a)*c
+    return a,b
+
     
